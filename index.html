@@ -380,8 +380,12 @@
             <select id="genre-filter"><option value="">すべて</option></select>
           </div>
           <div class="control-group">
-            <label>📍 エリア（駅）</label>
-            <select id="area-filter"><option value="">すべて</option></select>
+            <label>📍 路線（大カテゴリ）</label>
+            <select id="area-line" onchange="onLineChange('area')"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>📍 駅（小カテゴリ）</label>
+            <select id="area-station" onchange="applyFilter()"><option value="">すべての駅</option></select>
           </div>
           <div class="control-group">
             <label>💰 予算帯</label>
@@ -486,8 +490,12 @@
             <select id="night-genre" onchange="renderNight()"><option value="">すべて</option></select>
           </div>
           <div class="control-group">
-            <label>📍 エリア</label>
-            <select id="night-area" onchange="renderNight()"><option value="">すべて</option></select>
+            <label>📍 路線</label>
+            <select id="night-line" onchange="onLineChange('night')"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>📍 駅</label>
+            <select id="night-station" onchange="renderNight()"><option value="">すべての駅</option></select>
           </div>
           <div class="control-group">
             <label>💰 夜予算上限</label>
@@ -540,8 +548,12 @@
             <select id="lunch-genre" onchange="renderLunch()"><option value="">すべて</option></select>
           </div>
           <div class="control-group">
-            <label>📍 エリア</label>
-            <select id="lunch-area" onchange="renderLunch()"><option value="">すべて</option></select>
+            <label>📍 路線</label>
+            <select id="lunch-line" onchange="onLineChange('lunch')"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>📍 駅</label>
+            <select id="lunch-station" onchange="renderLunch()"><option value="">すべての駅</option></select>
           </div>
           <div class="control-group">
             <label>💰 昼予算上限</label>
@@ -722,6 +734,30 @@
       '料理旅館': '旅館', 'オーベルジュ': '旅館',
       'ハンバーガー': 'ファストフード', 'ピザ': 'イタリアン'
     };
+    const LINE_TO_STATIONS = {
+      '市営地下鉄 東山線': ['高畑駅','八田駅','八田（名古屋市営）駅','岩塚駅','中村公園駅','中村日赤駅','本山駅','名古屋駅','伏見駅','丸の内駅','新栄町駅','千種駅','今池駅','東山公園駅','星ケ丘駅','一社駅','上社駅','藤が丘駅','神沢駅','池下駅','覚王山駅'],
+      '市営地下鉄 名城線': ['金山駅','丸の内駅','久屋大通駅','名古屋城駅','名城公園駅','黒川駅','大曽根駅','ナゴヤドーム前矢田駅','砂田橋駅','東別院駅','上前津駅','矢場町駅','栄駅','栄（名古屋）駅','新瑞橋駅','西高蔵駅','堀田（名古屋市営）駅'],
+      '市営地下鉄 名港線': ['金山駅','日比野駅','日比野（名古屋市営）駅','六番町駅','東海通駅'],
+      '市営地下鉄 鶴舞線': ['庄内通駅','浄心駅','浅間町駅','丸の内駅','伏見駅','大須観音駅','上前津駅','鶴舞駅','荒畑駅','御器所駅','川名駅','いりなか駅','八事駅','八事日赤駅','塩釜口駅','植田駅','植田（名古屋市営）駅','平針駅','徳重駅'],
+      '市営地下鉄 桜通線': ['太閤通駅','名古屋駅','国際センター駅','丸の内駅','久屋大通駅','高岳駅','車道駅','今池駅','吹上駅','桜山駅','瑞穂運動場西駅','新瑞橋駅','野並駅'],
+      '市営地下鉄 上飯田線': ['上飯田駅','平安通駅'],
+      'JR東海道本線': ['名古屋駅','金山駅','尾頭橋駅','熱田駅','道徳駅','原駅','八田（ＪＲ）駅'],
+      'JR中央本線': ['名古屋駅','千種駅','大曽根駅','鶴舞駅','八事駅'],
+      '名鉄名古屋本線': ['名鉄名古屋駅','金山駅','山王駅','栄生駅','東枇杷島駅','堀田駅','堀田（名鉄）駅','神宮前駅','有松駅','鳴海駅','本星崎駅','熱田神宮伝馬町駅','亀島駅','豊田本町駅','本陣駅','鶴里駅'],
+      '近鉄名古屋線': ['近鉄名古屋駅','米野駅','烏森駅','八田駅','八田（名古屋市営）駅','八田（ＪＲ）駅'],
+      '名鉄瀬戸線': ['栄町駅','東大手駅','清水駅','尼ケ坂駅','森下駅','新守山駅','志賀本通駅','大森・金城学院前駅','本郷駅','築地口駅'],
+      'あおなみ線': ['名古屋駅','ささしまライブ駅','港北駅','春田駅'],
+      '名鉄犬山線': ['小田井駅','比良駅'],
+      '名古屋ガイドウェイバス': ['総合リハビリセンター駅']
+    };
+    const STATION_TO_LINES = {};
+    for (const [line, stations] of Object.entries(LINE_TO_STATIONS)) {
+      for (const s of stations) {
+        if (!STATION_TO_LINES[s]) STATION_TO_LINES[s] = [];
+        if (!STATION_TO_LINES[s].includes(line)) STATION_TO_LINES[s].push(line);
+      }
+    }
+
     function simplifyGenre(genreStr) {
       if (!genreStr) return 'その他';
       const parts = genreStr.split(/[、,]/);
@@ -753,8 +789,6 @@
         populateFilters();
         populateNightFilters();
         populateLunchFilters();
-        populateNightAreaFilter();
-        populateLunchAreaFilter();
         populateChips();
         updateSummary(allData);
         applyFilter();
@@ -766,13 +800,14 @@
 
     function populateFilters() {
       const genres = [...new Set(allData.map(r => r.genreSimple).filter(Boolean))].sort();
-      const areas = [...new Set(allData.map(r => r.areaSimple).filter(Boolean))].sort();
       const gSel = document.getElementById('genre-filter');
-      const aSel = document.getElementById('area-filter');
       while (gSel.options.length > 1) gSel.remove(1);
-      while (aSel.options.length > 1) aSel.remove(1);
       genres.forEach(g => gSel.add(new Option(g, g)));
-      areas.forEach(a => aSel.add(new Option(a, a)));
+
+      const lines = Object.keys(LINE_TO_STATIONS).sort();
+      const lSel = document.getElementById('area-line');
+      while (lSel.options.length > 1) lSel.remove(1);
+      lines.forEach(l => lSel.add(new Option(l, l)));
     }
 
     function populateChips() {
@@ -796,35 +831,55 @@
       const sel = document.getElementById('night-genre');
       while (sel.options.length > 1) sel.remove(1);
       genres.forEach(g => sel.add(new Option(g, g)));
+
+      const lines = Object.keys(LINE_TO_STATIONS).sort();
+      const lSel = document.getElementById('night-line');
+      while (lSel.options.length > 1) lSel.remove(1);
+      lines.forEach(l => lSel.add(new Option(l, l)));
     }
     function populateLunchFilters() {
       const genres = [...new Set(allData.filter(r => r.budgetMax <= 8000).map(r => r.genreSimple).filter(Boolean))].sort();
       const sel = document.getElementById('lunch-genre');
       while (sel.options.length > 1) sel.remove(1);
       genres.forEach(g => sel.add(new Option(g, g)));
+
+      const lines = Object.keys(LINE_TO_STATIONS).sort();
+      const lSel = document.getElementById('lunch-line');
+      while (lSel.options.length > 1) lSel.remove(1);
+      lines.forEach(l => lSel.add(new Option(l, l)));
+    }
+
+    function onLineChange(prefix) {
+      const line = document.getElementById(prefix + '-line').value;
+      const stationSel = document.getElementById(prefix + '-station');
+      stationSel.innerHTML = '<option value="">すべての駅</option>';
+      if (line && LINE_TO_STATIONS[line]) {
+        LINE_TO_STATIONS[line].forEach(s => stationSel.add(new Option(s, s)));
+      }
+      if (prefix === 'area') applyFilter();
+      else if (prefix === 'night') renderNight();
+      else if (prefix === 'lunch') renderLunch();
     }
 
     function toggleAreaChip(el) {
       const val = el.dataset.area;
       document.querySelectorAll('#area-chips .chip').forEach(c => c.classList.remove('active'));
-      if (activeAreaChip === val) { activeAreaChip = ''; document.getElementById('area-filter').value = ''; }
-      else { activeAreaChip = val; el.classList.add('active'); document.getElementById('area-filter').value = val; }
+      if (activeAreaChip === val) {
+        activeAreaChip = '';
+        document.getElementById('area-line').value = '';
+        document.getElementById('area-station').innerHTML = '<option value="">すべての駅</option>';
+      } else {
+        activeAreaChip = val; el.classList.add('active');
+        const lines = STATION_TO_LINES[val] || [];
+        if (lines.length) {
+          document.getElementById('area-line').value = lines[0];
+          const stationSel = document.getElementById('area-station');
+          stationSel.innerHTML = '<option value="">すべての駅</option>';
+          LINE_TO_STATIONS[lines[0]].forEach(s => stationSel.add(new Option(s, s)));
+        }
+        document.getElementById('area-station').value = val;
+      }
       applyFilter();
-    }
-
-    function populateNightAreaFilter() {
-      const areas = [...new Set(allData.filter(r => r.genreSimple !== '居酒屋・バル' && r.genreSimple !== 'バー').map(r => r.areaSimple).filter(Boolean))].sort();
-      const sel = document.getElementById('night-area');
-      if (!sel) return;
-      while (sel.options.length > 1) sel.remove(1);
-      areas.forEach(a => sel.add(new Option(a, a)));
-    }
-    function populateLunchAreaFilter() {
-      const areas = [...new Set(allData.filter(r => r.budgetMax <= 8000).map(r => r.areaSimple).filter(Boolean))].sort();
-      const sel = document.getElementById('lunch-area');
-      if (!sel) return;
-      while (sel.options.length > 1) sel.remove(1);
-      areas.forEach(a => sel.add(new Option(a, a)));
     }
 
     function toggleGenreChip(el) {
@@ -879,7 +934,8 @@
     function applyFilter() {
       const search = document.getElementById('search-input').value.toLowerCase().trim();
       const genre = document.getElementById('genre-filter').value;
-      const area = document.getElementById('area-filter').value;
+      const line = document.getElementById('area-line').value;
+      const station = document.getElementById('area-station').value;
       const budget = document.getElementById('budget-filter').value;
       const dist = document.getElementById('dist-filter').value;
       const scoreMin = parseFloat(document.getElementById('score-min').value);
@@ -891,7 +947,8 @@
       filteredData = allData.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
-        if (area && r.areaSimple !== area) return false;
+        if (line) { const sts = LINE_TO_STATIONS[line] || []; if (!sts.includes(r.areaSimple)) return false; }
+        if (station && r.areaSimple !== station) return false;
         if (budget) { const max = parseInt(budget); if (max >= 20000 ? r.budgetMax < 20000 : r.budgetMax > max) return false; }
         if (dist) { const max = parseInt(dist); if (parseDistance(r.area) > max) return false; }
         if (scoreMin > 0 && r.scoreNum < scoreMin) return false;
@@ -977,7 +1034,8 @@
     function clearFilters() {
       document.getElementById('search-input').value = '';
       document.getElementById('genre-filter').value = '';
-      document.getElementById('area-filter').value = '';
+      document.getElementById('area-line').value = '';
+      document.getElementById('area-station').innerHTML = '<option value="">すべての駅</option>';
       document.getElementById('budget-filter').value = '';
       document.getElementById('dist-filter').value = '';
       document.getElementById('score-min').value = 0;
@@ -1218,14 +1276,16 @@
     function renderNight() {
       const search = document.getElementById('night-search').value.toLowerCase().trim();
       const genre = document.getElementById('night-genre').value;
-      const area = document.getElementById('night-area').value;
+      const line = document.getElementById('night-line').value;
+      const station = document.getElementById('night-station').value;
       const budget = document.getElementById('night-budget').value;
       const noSweets = document.getElementById('night-no-sweets').checked;
       let data = allData.filter(r => r.genreSimple !== '居酒屋・バル' && r.genreSimple !== 'バー');
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
-        if (area && r.areaSimple !== area) return false;
+        if (line) { const sts = LINE_TO_STATIONS[line] || []; if (!sts.includes(r.areaSimple)) return false; }
+        if (station && r.areaSimple !== station) return false;
         if (budget) { const max = parseInt(budget); if (r.budgetMax > max) return false; }
         if (noSweets && r.genreSimple === 'カフェ・スイーツ') return false;
         return true;
@@ -1293,7 +1353,8 @@
     function renderLunch() {
       const search = document.getElementById('lunch-search').value.toLowerCase().trim();
       const genre = document.getElementById('lunch-genre').value;
-      const area = document.getElementById('lunch-area').value;
+      const line = document.getElementById('lunch-line').value;
+      const station = document.getElementById('lunch-station').value;
       const budget = document.getElementById('lunch-budget').value;
       const noSweets = document.getElementById('lunch-no-sweets').checked;
       // Lunch = budgetMax <= 8000 (casual dining)
@@ -1301,7 +1362,8 @@
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
-        if (area && r.areaSimple !== area) return false;
+        if (line) { const sts = LINE_TO_STATIONS[line] || []; if (!sts.includes(r.areaSimple)) return false; }
+        if (station && r.areaSimple !== station) return false;
         if (budget !== '') { const max = parseInt(budget); if (r.budgetMax > max) return false; }
         if (noSweets && r.genreSimple === 'カフェ・スイーツ') return false;
         return true;
@@ -1368,7 +1430,7 @@
 
     document.getElementById('search-input').addEventListener('input', applyFilter);
     document.getElementById('genre-filter').addEventListener('change', applyFilter);
-    document.getElementById('area-filter').addEventListener('change', applyFilter);
+    document.getElementById('area-line').addEventListener('change', applyFilter);
     document.getElementById('budget-filter').addEventListener('change', applyFilter);
     document.getElementById('score-min').addEventListener('input', function() { document.getElementById('score-val').textContent = this.value; applyFilter(); });
 
