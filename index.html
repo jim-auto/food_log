@@ -491,6 +491,13 @@
             </select>
           </div>
           <div class="control-group">
+            <label>🍰 除外設定</label>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+              <input type="checkbox" id="night-no-sweets" onchange="renderNight()" checked style="width:auto;cursor:pointer;">
+              <label for="night-no-sweets" style="font-size:0.85rem;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;font-weight:normal;">お菓子・カフェ系を除外</label>
+            </div>
+          </div>
+          <div class="control-group">
             <label>📊 並び替え</label>
             <div class="btn-group">
               <button class="btn active" onclick="sortNight='score';document.querySelectorAll('#tab-night .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderNight()">スコア</button>
@@ -1085,11 +1092,13 @@
       const search = document.getElementById('night-search').value.toLowerCase().trim();
       const genre = document.getElementById('night-genre').value;
       const budget = document.getElementById('night-budget').value;
+      const noSweets = document.getElementById('night-no-sweets').checked;
       let data = allData.filter(r => r.genreSimple !== '居酒屋・バル');
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
         if (budget) { const max = parseInt(budget); if (r.budgetMax > max) return false; }
+        if (noSweets && r.genreSimple === 'カフェ・スイーツ') return false;
         return true;
       });
       const dir = -1;
