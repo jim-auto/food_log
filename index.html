@@ -533,6 +533,13 @@
             </select>
           </div>
           <div class="control-group">
+            <label>🍰 除外設定</label>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+              <input type="checkbox" id="lunch-no-sweets" onchange="renderLunch()" style="width:auto;cursor:pointer;">
+              <label for="lunch-no-sweets" style="font-size:0.85rem;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;font-weight:normal;">お菓子・カフェ系を除外</label>
+            </div>
+          </div>
+          <div class="control-group">
             <label>📊 並び替え</label>
             <div class="btn-group">
               <button class="btn active" onclick="sortLunch='score';document.querySelectorAll('#tab-lunch .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderLunch()">スコア</button>
@@ -682,8 +689,10 @@
       genres.forEach(g => sel.add(new Option(g, g)));
     }
     function populateLunchFilters() {
-      const genres = [...new Set(allData.filter(r => r.hasLunch).map(r => r.genre).filter(Boolean))].sort();
+      const genres = [...new Set(allData.filter(r => r.budgetMax <= 8000).map(r => r.genre).filter(Boolean))].sort();
       const sel = document.getElementById('lunch-genre');
+      // Clear existing options except first
+      while (sel.options.length > 1) sel.remove(1);
       genres.forEach(g => sel.add(new Option(g, g)));
     }
 
@@ -1108,12 +1117,15 @@
       const search = document.getElementById('lunch-search').value.toLowerCase().trim();
       const genre = document.getElementById('lunch-genre').value;
       const budget = document.getElementById('lunch-budget').value;
+      const noSweets = document.getElementById('lunch-no-sweets').checked;
+      const sweetGenres = ['カフェ', 'ケーキ', 'パン', 'スイーツ', '洋菓子', '和菓子', 'タピオカ', 'クレープ', 'ジェラート', 'ドーナツ', 'チョコレート', 'パフェ', 'ベーカリー', '喫茶店', 'コーヒー'];
       // Lunch = budgetMax <= 8000 (casual dining)
       let data = allData.filter(r => r.budgetMax <= 8000);
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && (!r.genre || !r.genre.includes(genre))) return false;
         if (budget !== '') { const max = parseInt(budget); if (r.budgetMax > max) return false; }
+        if (noSweets && r.genre && sweetGenres.some(sg => r.genre.includes(sg))) return false;
         return true;
       });
       const dir = sortLunch === 'lunch' ? 1 : -1;
