@@ -15,8 +15,8 @@
       --text-light: #666;
       --border: #e0e0e0;
       --shadow: 0 2px 12px rgba(0,0,0,0.08);
-      --shadow-hover: 0 8px 30px rgba(0,0,0,0.15);
-      --radius: 14px;
+      --shadow-hover: 0 12px 32px rgba(0,0,0,0.12);
+      --radius: 16px;
       --nav-bg: #fff;
       --modal-overlay: rgba(0,0,0,0.5);
     }
@@ -27,7 +27,7 @@
       --text-light: #a0a0a0;
       --border: #2a2a4a;
       --shadow: 0 2px 12px rgba(0,0,0,0.3);
-      --shadow-hover: 0 8px 30px rgba(0,0,0,0.4);
+      --shadow-hover: 0 12px 32px rgba(0,0,0,0.4);
       --nav-bg: #16213e;
       --modal-overlay: rgba(0,0,0,0.7);
     }
@@ -43,12 +43,12 @@
     .header {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: #fff;
-      padding: 30px 20px 20px;
+      padding: 36px 20px 24px;
       text-align: center;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
-    .header h1 { font-size: 1.8rem; margin-bottom: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    .header p { opacity: 0.9; font-size: 0.9rem; }
+    .header h1 { font-size: 1.7rem; margin-bottom: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .header p { opacity: 0.9; font-size: 0.88rem; }
     .nav {
       background: var(--nav-bg);
       box-shadow: var(--shadow);
@@ -66,12 +66,12 @@
       padding: 0 10px;
     }
     .nav-btn {
-      padding: 14px 20px;
+      padding: 14px 18px;
       border: none;
       background: transparent;
       color: var(--text-light);
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       cursor: pointer;
       white-space: nowrap;
       border-bottom: 3px solid transparent;
@@ -94,7 +94,7 @@
       margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       padding: 0 10px;
     }
     .icon-btn {
@@ -115,19 +115,19 @@
     .container { max-width: 1300px; margin: 0 auto; padding: 20px; }
     .stats-summary {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 10px;
       margin-bottom: 16px;
     }
     .summary-card {
       background: var(--card-bg);
-      padding: 14px 10px;
+      padding: 14px 8px;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       text-align: center;
       transition: background 0.3s;
     }
-    .summary-card .value { font-size: 1.4rem; font-weight: bold; color: var(--primary); }
+    .summary-card .value { font-size: 1.3rem; font-weight: bold; color: var(--primary); }
     .summary-card .label { font-size: 0.7rem; color: var(--text-light); margin-top: 4px; }
     .controls-panel {
       background: var(--card-bg);
@@ -145,7 +145,7 @@
     }
     .control-group { display: flex; flex-direction: column; gap: 5px; }
     .control-group label { font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
-    select, input[type="text"], input[type="number"] {
+    select, input[type="text"] {
       padding: 9px 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.85rem;
       outline: none; transition: border-color 0.2s; width: 100%; background: var(--card-bg); color: var(--text);
     }
@@ -160,6 +160,14 @@
     }
     .btn:hover { border-color: var(--primary); color: var(--primary); }
     .btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip {
+      padding: 6px 14px; border-radius: 20px; background: rgba(217,83,79,0.08);
+      color: var(--primary); font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      border: 1.5px solid transparent; transition: all 0.2s;
+    }
+    .chip:hover { border-color: var(--primary); }
+    .chip.active { background: var(--primary); color: #fff; }
     .actions {
       display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
       gap: 12px; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--border);
@@ -172,38 +180,38 @@
     .clear-btn:hover { border-color: var(--primary); color: var(--primary); }
     .result-info { font-size: 0.85rem; color: var(--text-light); }
     .result-info strong { color: var(--primary); }
-    .view-toggle { display: flex; gap: 4px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
-    .list-view .grid { display: flex; flex-direction: column; gap: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
     .card {
       background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
       transition: transform 0.25s, box-shadow 0.25s; display: flex; flex-direction: column;
       position: relative; transition: background 0.3s;
     }
-    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
-    .list-view .card { flex-direction: row; align-items: center; padding: 14px 18px; gap: 16px; }
-    .list-view .card-body { padding: 0; flex: 1; }
-    .list-view .stats-row, .list-view .budget-box, .list-view .link-btn { display: none; }
-    .list-view .genre-tag { margin-bottom: 4px; }
-    .list-view .name { margin-top: 0; font-size: 1.05rem; }
+    .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
+    .card-img-wrap {
+      position: relative; width: 100%; height: 200px; overflow: hidden; background: #eee;
+    }
+    .card-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s;
+    }
+    .card:hover .card-img-wrap img { transform: scale(1.06); }
     .rank-badge {
-      position: absolute; top: 12px; left: 12px; background: linear-gradient(135deg, #ff8c00, #ff6b00);
-      color: #fff; font-size: 1rem; font-weight: bold; width: 42px; height: 42px;
+      position: absolute; top: 10px; left: 10px;
+      background: linear-gradient(135deg, #ff8c00, #ff6b00);
+      color: #fff; font-size: 1rem; font-weight: bold; width: 40px; height: 40px;
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
       box-shadow: 0 3px 10px rgba(0,0,0,0.25); z-index: 2;
     }
-    .rank-badge.top1 { background: linear-gradient(135deg, #ffd700, #ffb700); width: 50px; height: 50px; font-size: 1.3rem; }
-    .rank-badge.top2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); width: 46px; height: 46px; font-size: 1.15rem; }
-    .rank-badge.top3 { background: linear-gradient(135deg, #cd7f32, #b87333); width: 46px; height: 46px; font-size: 1.15rem; }
-    .list-view .rank-badge { position: static; width: 36px; height: 36px; font-size: 0.9rem; flex-shrink: 0; }
-    .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-    .name { font-size: 1.15rem; font-weight: bold; margin-bottom: 6px; margin-top: 8px; line-height: 1.4; color: var(--text); }
-    .list-view .name { margin-top: 0; }
+    .rank-badge.top1 { background: linear-gradient(135deg, #ffd700, #ffb700); width: 48px; height: 48px; font-size: 1.25rem; }
+    .rank-badge.top2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); width: 44px; height: 44px; font-size: 1.1rem; }
+    .rank-badge.top3 { background: linear-gradient(135deg, #cd7f32, #b87333); width: 44px; height: 44px; font-size: 1.1rem; }
+    .card-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+    .name { font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; line-height: 1.35; color: var(--text); cursor: pointer; }
+    .name:hover { color: var(--primary); }
     .area { color: var(--text-light); font-size: 0.85rem; margin-bottom: 8px; }
     .genre-tag {
       display: inline-block; background: #fff3f0; color: var(--primary);
       padding: 3px 12px; border-radius: 14px; font-size: 0.75rem; font-weight: 600;
-      margin-bottom: 12px; width: fit-content;
+      margin-bottom: 10px; width: fit-content;
     }
     [data-theme="dark"] .genre-tag { background: rgba(217,83,79,0.15); }
     .stats-row {
@@ -217,14 +225,15 @@
       font-size: 0.85rem; color: var(--text-light); margin-bottom: 10px;
       padding: 6px 10px; background: rgba(255,140,0,0.08); border-radius: 8px; border-left: 3px solid var(--accent);
     }
-    .card-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 10px; }
+    .card-actions { display: flex; gap: 6px; margin-top: auto; }
     .card-btn {
-      flex: 1; padding: 9px; border: 2px solid var(--border); background: var(--card-bg); border-radius: 10px;
-      cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; color: var(--text-light);
-      display: flex; align-items: center; justify-content: center; gap: 4px;
+      flex: 1; padding: 8px; border: 2px solid var(--border); background: var(--card-bg); border-radius: 10px;
+      cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: all 0.2s; color: var(--text-light);
+      display: flex; align-items: center; justify-content: center; gap: 3px;
     }
     .card-btn:hover { border-color: var(--primary); color: var(--primary); }
     .card-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .card-btn.map { flex: 0.8; }
     .link-btn { text-align: center; }
     .link-btn a {
       display: block; padding: 10px; background: linear-gradient(135deg, var(--accent), #ff6b00);
@@ -251,7 +260,7 @@
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: var(--card-bg); border-radius: var(--radius); max-width: 520px; width: 100%;
+      background: var(--card-bg); border-radius: var(--radius); max-width: 540px; width: 100%;
       max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       animation: modalIn 0.3s ease; position: relative; transition: background 0.3s;
     }
@@ -263,14 +272,15 @@
       transition: background 0.2s; z-index: 10;
     }
     .modal-close:hover { background: rgba(0,0,0,0.15); }
-    .modal-body { padding: 28px; }
+    .modal-img { width: 100%; height: 240px; object-fit: cover; }
+    .modal-body { padding: 24px; }
     .modal-rank {
       display: inline-block; background: var(--primary); color: #fff;
       padding: 4px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; margin-bottom: 10px;
     }
     .modal-name { font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: var(--text); }
     .modal-meta { color: var(--text-light); font-size: 0.9rem; margin-bottom: 16px; }
-    .modal-stats { display: flex; gap: 16px; margin-bottom: 20px; }
+    .modal-stats { display: flex; gap: 14px; margin-bottom: 20px; }
     .modal-stat { background: rgba(128,128,128,0.06); padding: 12px 16px; border-radius: 10px; text-align: center; flex: 1; }
     .modal-stat .num { font-size: 1.3rem; font-weight: bold; color: var(--primary); }
     .modal-stat .lbl { font-size: 0.7rem; color: var(--text-light); }
@@ -294,8 +304,24 @@
 
     /* Section */
     .section-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 8px; }
-    .mypage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .mypage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
     .mypage-empty { text-align: center; padding: 40px; color: var(--text-light); }
+
+    /* Data management panel */
+    .data-panel {
+      margin-top: 40px; background: var(--card-bg); padding: 24px;
+      border-radius: var(--radius); box-shadow: var(--shadow); transition: background 0.3s;
+    }
+    .data-textarea {
+      width: 100%; height: 100px; margin-top: 6px; padding: 10px;
+      border: 2px solid var(--border); border-radius: 10px; font-family: monospace;
+      font-size: 0.8rem; background: var(--bg); color: var(--text); resize: vertical;
+    }
+    .data-input {
+      width: 100%; margin-top: 6px; padding: 10px;
+      border: 2px solid var(--border); border-radius: 10px; font-size: 0.85rem;
+      background: var(--bg); color: var(--text);
+    }
 
     footer { text-align: center; margin-top: 40px; padding: 24px 20px; color: #999; font-size: 0.75rem; }
     @media (max-width: 640px) {
@@ -303,8 +329,7 @@
       .grid { grid-template-columns: 1fr; }
       .controls-grid { grid-template-columns: 1fr; }
       .actions { flex-direction: column; align-items: stretch; }
-      .list-view .card { flex-direction: column; align-items: flex-start; }
-      .list-view .rank-badge { position: absolute; top: 12px; left: 12px; }
+      .card-img-wrap { height: 180px; }
     }
   </style>
 </head>
@@ -317,10 +342,11 @@
   <nav class="nav">
     <div class="nav-inner">
       <button class="nav-btn active" onclick="setTab('ranking')" id="nav-ranking">🏆 ランキング</button>
+      <button class="nav-btn" onclick="setTab('night')" id="nav-night">🌙 夜のグルメ</button>
+      <button class="nav-btn" onclick="setTab('lunch')" id="nav-lunch">🍽️ ランチ</button>
       <button class="nav-btn" onclick="setTab('mypage')" id="nav-mypage">📋 マイページ <span class="badge" id="mypage-badge">0</span></button>
       <button class="nav-btn" onclick="setTab('random')" id="nav-random">🎲 おすすめ</button>
       <div class="nav-actions">
-        <button class="icon-btn" onclick="toggleView()" title="表示切替" id="view-btn">⊞</button>
         <button class="icon-btn" onclick="toggleDark()" title="ダークモード" id="dark-btn">🌙</button>
       </div>
     </div>
@@ -376,12 +402,19 @@
           <div class="control-group">
             <label>📊 並び替え</label>
             <div class="btn-group">
-              <button class="btn btn-sort active" onclick="sortBy('score')" id="btn-score">スコア<span class="sort-dir">▼</span></button>
-              <button class="btn btn-sort" onclick="sortBy('save')" id="btn-save">保存数<span class="sort-dir">▼</span></button>
-              <button class="btn btn-sort" onclick="sortBy('review')" id="btn-review">口コミ<span class="sort-dir">▼</span></button>
+              <button class="btn btn-sort active" onclick="sortBy('score')" id="btn-score">スコア<span style="font-size:0.7rem;">▼</span></button>
+              <button class="btn btn-sort" onclick="sortBy('save')" id="btn-save">保存数<span style="font-size:0.7rem;">▼</span></button>
+              <button class="btn btn-sort" onclick="sortBy('review')" id="btn-review">口コミ<span style="font-size:0.7rem;">▼</span></button>
             </div>
           </div>
         </div>
+
+        <div style="margin-bottom:6px;font-size:0.75rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;">🚀 人気エリアで絞る</div>
+        <div class="chip-group" id="area-chips"></div>
+
+        <div style="margin-top:14px;margin-bottom:6px;font-size:0.75rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:0.5px;">🍽️ 人気ジャンルで絞る</div>
+        <div class="chip-group" id="genre-chips"></div>
+
         <div class="actions">
           <div class="result-info" id="result-info">読み込み中...</div>
           <div style="display:flex;gap:10px;align-items:center;">
@@ -403,6 +436,91 @@
       <div class="pagination" id="pagination"></div>
     </div>
 
+    <!-- NIGHT TAB -->
+    <div id="tab-night" style="display:none;">
+      <div class="stats-summary" id="night-stats">
+        <div class="summary-card"><div class="value">-</div><div class="label">該当件数</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均スコア</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均予算</div></div>
+      </div>
+      <div class="controls-panel">
+        <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:12px;">🌙 居酒屋以外の夜のグルメを探す。デート、接待、記念日などに。</p>
+        <div class="controls-grid">
+          <div class="control-group">
+            <label>🔍 店名検索</label>
+            <input type="text" id="night-search" placeholder="店名の一部を入力..." oninput="renderNight()">
+          </div>
+          <div class="control-group">
+            <label>🏷️ ジャンル</label>
+            <select id="night-genre" onchange="renderNight()"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>💰 夜予算上限</label>
+            <select id="night-budget" onchange="renderNight()">
+              <option value="">指定なし</option>
+              <option value="4999">〜￥5,000</option>
+              <option value="7999">〜￥8,000</option>
+              <option value="9999">〜￥10,000</option>
+              <option value="14999">〜￥15,000</option>
+              <option value="19999">〜￥20,000</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>📊 並び替え</label>
+            <div class="btn-group">
+              <button class="btn active" onclick="sortNight='score';document.querySelectorAll('#tab-night .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderNight()">スコア</button>
+              <button class="btn" onclick="sortNight='save';document.querySelectorAll('#tab-night .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderNight()">保存数</button>
+              <button class="btn" onclick="sortNight='review';document.querySelectorAll('#tab-night .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderNight()">口コミ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="night-grid" class="grid"></div>
+      <div class="pagination" id="night-pagination"></div>
+    </div>
+
+    <!-- LUNCH TAB -->
+    <div id="tab-lunch" style="display:none;">
+      <div class="stats-summary" id="lunch-stats">
+        <div class="summary-card"><div class="value">-</div><div class="label">ランチ件数</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均昼予算</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均スコア</div></div>
+      </div>
+      <div class="controls-panel">
+        <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:12px;">🍽️ ランチメニューあり＆コスパ良しのお店。昼予算￥3,000以下で絞り込み。</p>
+        <div class="controls-grid">
+          <div class="control-group">
+            <label>🔍 店名検索</label>
+            <input type="text" id="lunch-search" placeholder="店名の一部を入力..." oninput="renderLunch()">
+          </div>
+          <div class="control-group">
+            <label>🏷️ ジャンル</label>
+            <select id="lunch-genre" onchange="renderLunch()"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>💰 昼予算上限</label>
+            <select id="lunch-budget" onchange="renderLunch()">
+              <option value="3000">〜￥3,000（デフォルト）</option>
+              <option value="999">〜￥1,000</option>
+              <option value="1999">〜￥2,000</option>
+              <option value="4999">〜￥5,000</option>
+              <option value="">指定なし</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>📊 並び替え</label>
+            <div class="btn-group">
+              <button class="btn active" onclick="sortLunch='score';document.querySelectorAll('#tab-lunch .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderLunch()">スコア</button>
+              <button class="btn" onclick="sortLunch='save';document.querySelectorAll('#tab-lunch .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderLunch()">保存数</button>
+              <button class="btn" onclick="sortLunch='lunch';document.querySelectorAll('#tab-lunch .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderLunch()">昼予算順</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="lunch-grid" class="grid"></div>
+      <div class="pagination" id="lunch-pagination"></div>
+    </div>
+
     <!-- MYPAGE TAB -->
     <div id="tab-mypage" style="display:none;">
       <div class="section-title">❤️ 行きたいリスト</div>
@@ -411,35 +529,31 @@
       <div class="section-title" style="margin-top:30px;">✅ 行ったリスト</div>
       <div id="visited-list" class="mypage-grid"><div class="mypage-empty">まだ登録されていません</div></div>
 
-      <div style="margin-top:40px;background:var(--card-bg);padding:24px;border-radius:var(--radius);box-shadow:var(--shadow);">
+      <div class="data-panel">
         <div class="section-title">💾 データ管理</div>
         <p style="color:var(--text-light);font-size:0.85rem;margin-bottom:16px;">データはこの端末のブラウザに保存されています。バックアップを取っておけば、別端末やブラウザキャッシュ削除時に復元できます。</p>
-
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-          <button class="btn" onclick="exportData()" style="background:var(--primary);color:#fff;border-color:var(--primary);">📤 エクスポート（コピー）</button>
+          <button class="btn" onclick="exportData()" style="background:var(--primary);color:#fff;border-color:var(--primary);">📤 エクスポート</button>
           <button class="btn" onclick="showImport()">📥 インポート</button>
           <button class="btn" onclick="shareByUrl()">🔗 URLで共有</button>
         </div>
-
         <div id="export-box" style="display:none;margin-bottom:16px;">
           <label style="font-size:0.8rem;color:var(--text-light);font-weight:600;">バックアップテキスト（コピーして保存してください）</label>
-          <textarea id="export-text" readonly style="width:100%;height:100px;margin-top:6px;padding:10px;border:2px solid var(--border);border-radius:10px;font-family:monospace;font-size:0.8rem;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
-          <button class="btn" onclick="copyExport()" style="margin-top:8px;font-size:0.8rem;">📋 クリップボードにコピー</button>
+          <textarea id="export-text" class="data-textarea" readonly></textarea>
+          <button class="btn" onclick="copyExport()" style="margin-top:8px;font-size:0.8rem;">📋 コピー</button>
         </div>
-
         <div id="import-box" style="display:none;">
           <label style="font-size:0.8rem;color:var(--text-light);font-weight:600;">バックアップテキストを貼り付けてください</label>
-          <textarea id="import-text" style="width:100%;height:100px;margin-top:6px;padding:10px;border:2px solid var(--border);border-radius:10px;font-family:monospace;font-size:0.8rem;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
+          <textarea id="import-text" class="data-textarea"></textarea>
           <div style="display:flex;gap:10px;margin-top:8px;">
             <button class="btn" onclick="doImport()" style="background:var(--accent);color:#fff;border-color:var(--accent);">✅ 復元する</button>
             <button class="btn" onclick="hideImport()">キャンセル</button>
           </div>
           <p id="import-msg" style="font-size:0.8rem;margin-top:8px;"></p>
         </div>
-
         <div id="share-box" style="display:none;margin-bottom:16px;">
           <label style="font-size:0.8rem;color:var(--text-light);font-weight:600;">共有URL（コピーして送ってください）</label>
-          <input id="share-url" type="text" readonly style="width:100%;margin-top:6px;padding:10px;border:2px solid var(--border);border-radius:10px;font-size:0.8rem;background:var(--bg);color:var(--text);">
+          <input id="share-url" type="text" class="data-input" readonly>
           <button class="btn" onclick="copyShare()" style="margin-top:8px;font-size:0.8rem;">📋 URLをコピー</button>
         </div>
       </div>
@@ -460,7 +574,7 @@
   <div class="modal-overlay" id="modal" onclick="closeModal(event)">
     <div class="modal" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">&times;</button>
-      <div class="modal-body" id="modal-body"></div>
+      <div id="modal-body"></div>
     </div>
   </div>
 
@@ -469,25 +583,22 @@
   </footer>
 
   <script>
-    const LS_WANT = 'tabelog_want';
-    const LS_VISITED = 'tabelog_visited';
-    const LS_DARK = 'tabelog_dark';
-    let allData = [], filteredData = [], currentSort = { key: 'score', desc: true }, currentPage = 1, isListView = false;
+    const LS_WANT = 'tabelog_want', LS_VISITED = 'tabelog_visited', LS_DARK = 'tabelog_dark';
+    let allData = [], filteredData = [], currentSort = { key: 'score', desc: true }, currentPage = 1;
+    let activeAreaChip = '', activeGenreChip = '';
 
-    // Storage helpers
     function getWant() { return JSON.parse(localStorage.getItem(LS_WANT) || '[]'); }
     function getVisited() { return JSON.parse(localStorage.getItem(LS_VISITED) || '[]'); }
     function saveWant(arr) { localStorage.setItem(LS_WANT, JSON.stringify(arr)); updateBadge(); }
     function saveVisited(arr) { localStorage.setItem(LS_VISITED, JSON.stringify(arr)); updateBadge(); }
-    function toggleWant(id) { const arr = getWant(); const idx = arr.indexOf(id); if (idx > -1) arr.splice(idx, 1); else arr.push(id); saveWant(arr); applyFilter(); }
-    function toggleVisited(id) { const arr = getVisited(); const idx = arr.indexOf(id); if (idx > -1) arr.splice(idx, 1); else arr.push(id); saveVisited(arr); applyFilter(); }
+    function toggleWant(id) { const arr = getWant(); const i = arr.indexOf(id); i > -1 ? arr.splice(i, 1) : arr.push(id); saveWant(arr); applyFilter(); }
+    function toggleVisited(id) { const arr = getVisited(); const i = arr.indexOf(id); i > -1 ? arr.splice(i, 1) : arr.push(id); saveVisited(arr); applyFilter(); }
     function isWant(id) { return getWant().includes(id); }
     function isVisited(id) { return getVisited().includes(id); }
-    function updateBadge() { const total = getWant().length + getVisited().length; document.getElementById('mypage-badge').textContent = total; }
+    function updateBadge() { const t = getWant().length + getVisited().length; document.getElementById('mypage-badge').textContent = t; }
 
-    // Init
     async function loadData() {
-      if (localStorage.getItem(LS_DARK) === '1') document.documentElement.setAttribute('data-theme', 'dark');
+      if (localStorage.getItem(LS_DARK) === '1') { document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('dark-btn').textContent = '☀️'; }
       updateBadge();
       try {
         const res = await fetch('nagoya_restaurants.json');
@@ -497,16 +608,20 @@
           r.reviewNum = parseInt((r.review_count || '0').replace(/[^0-9]/g, '')) || 0;
           r.saveNum = parseInt((r.save_count || '0').replace(/[^0-9]/g, '')) || 0;
           r.budgetMax = parseBudget(r.budget);
+          r.lunchBudget = parseLunchBudget(r.budget);
+          r.hasLunch = r.budget && r.budget.includes('昼');
         });
         populateFilters();
+        populateNightFilters();
+        populateLunchFilters();
+        populateChips();
         updateSummary(allData);
         applyFilter();
-      } catch (e) {
-        document.getElementById('grid').innerHTML = '<div class="loading">データの読み込みに失敗しました</div>';
-      }
+      } catch (e) { document.getElementById('grid').innerHTML = '<div class="loading">データの読み込みに失敗しました</div>'; }
     }
 
     function parseBudget(s) { if (!s) return 999999; const m = s.match(/￥(\d{1,3}(?:,\d{3})*)/g); if (!m) return 999999; return Math.max(...m.map(v => parseInt(v.replace(/[￥,]/g, '')))); }
+    function parseLunchBudget(s) { if (!s) return 999999; const lunchMatch = s.match(/昼[:：]\s*￥?(\d{1,3}(?:,\d{3})*)/); if (lunchMatch) return parseInt(lunchMatch[1].replace(/,/g, '')); const m = s.match(/￥(\d{1,3}(?:,\d{3})*)/g); if (!m) return 999999; return Math.min(...m.map(v => parseInt(v.replace(/[￥,]/g, '')))); }
 
     function populateFilters() {
       const genres = [...new Set(allData.map(r => r.genre).filter(Boolean))].sort();
@@ -515,6 +630,49 @@
       const aSel = document.getElementById('area-filter');
       genres.forEach(g => gSel.add(new Option(g, g)));
       areas.forEach(a => aSel.add(new Option(a, a)));
+    }
+
+    function populateChips() {
+      // Popular areas
+      const areaCounts = {};
+      allData.forEach(r => { if (r.area) areaCounts[r.area] = (areaCounts[r.area] || 0) + 1; });
+      const topAreas = Object.entries(areaCounts).sort((a, b) => b[1] - a[1]).slice(0, 12);
+      const areaContainer = document.getElementById('area-chips');
+      areaContainer.innerHTML = topAreas.map(([a, c]) => `<span class="chip" data-area="${a}" onclick="toggleAreaChip(this)">${a} (${c})</span>`).join('');
+
+      // Popular genres
+      const genreCounts = {};
+      allData.forEach(r => { if (r.genre) genreCounts[r.genre] = (genreCounts[r.genre] || 0) + 1; });
+      const topGenres = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]).slice(0, 12);
+      const genreContainer = document.getElementById('genre-chips');
+      genreContainer.innerHTML = topGenres.map(([g, c]) => `<span class="chip" data-genre="${g}" onclick="toggleGenreChip(this)">${g} (${c})</span>`).join('');
+    }
+
+    function populateNightFilters() {
+      const genres = [...new Set(allData.filter(r => r.genre !== '居酒屋').map(r => r.genre).filter(Boolean))].sort();
+      const sel = document.getElementById('night-genre');
+      genres.forEach(g => sel.add(new Option(g, g)));
+    }
+    function populateLunchFilters() {
+      const genres = [...new Set(allData.filter(r => r.hasLunch).map(r => r.genre).filter(Boolean))].sort();
+      const sel = document.getElementById('lunch-genre');
+      genres.forEach(g => sel.add(new Option(g, g)));
+    }
+
+    function toggleAreaChip(el) {
+      const val = el.dataset.area;
+      document.querySelectorAll('#area-chips .chip').forEach(c => c.classList.remove('active'));
+      if (activeAreaChip === val) { activeAreaChip = ''; document.getElementById('area-filter').value = ''; }
+      else { activeAreaChip = val; el.classList.add('active'); document.getElementById('area-filter').value = val; }
+      applyFilter();
+    }
+
+    function toggleGenreChip(el) {
+      const val = el.dataset.genre;
+      document.querySelectorAll('#genre-chips .chip').forEach(c => c.classList.remove('active'));
+      if (activeGenreChip === val) { activeGenreChip = ''; document.getElementById('genre-filter').value = ''; }
+      else { activeGenreChip = val; el.classList.add('active'); document.getElementById('genre-filter').value = val; }
+      applyFilter();
     }
 
     function updateSummary(data) {
@@ -533,18 +691,22 @@
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('nav-' + tab).classList.add('active');
       document.getElementById('tab-ranking').style.display = tab === 'ranking' ? 'block' : 'none';
+      document.getElementById('tab-night').style.display = tab === 'night' ? 'block' : 'none';
+      document.getElementById('tab-lunch').style.display = tab === 'lunch' ? 'block' : 'none';
       document.getElementById('tab-mypage').style.display = tab === 'mypage' ? 'block' : 'none';
       document.getElementById('tab-random').style.display = tab === 'random' ? 'block' : 'none';
       if (tab === 'mypage') renderMyPage();
+      if (tab === 'night') renderNight();
+      if (tab === 'lunch') renderLunch();
     }
 
     function sortBy(key) {
       if (currentSort.key === key) currentSort.desc = !currentSort.desc;
       else currentSort = { key, desc: true };
-      document.querySelectorAll('.btn-sort').forEach(b => { b.classList.remove('active'); b.querySelector('.sort-dir').textContent = '▼'; });
+      document.querySelectorAll('.btn-sort').forEach(b => { b.classList.remove('active'); b.querySelector('span').textContent = '▼'; });
       const active = document.getElementById('btn-' + key);
       active.classList.add('active');
-      active.querySelector('.sort-dir').textContent = currentSort.desc ? '▼' : '▲';
+      active.querySelector('span').textContent = currentSort.desc ? '▼' : '▲';
       applyFilter();
     }
 
@@ -569,6 +731,7 @@
         if (scoreMin > 0 && r.scoreNum < scoreMin) return false;
         return true;
       });
+
       filteredData = getSorted(filteredData);
       currentPage = 1;
       updateSummary(filteredData);
@@ -593,13 +756,16 @@
         card.className = 'card';
         let rc = 'rank-badge';
         if (rank === 1) rc += ' top1'; else if (rank === 2) rc += ' top2'; else if (rank === 3) rc += ' top3';
-        const wantCls = isWant(r.id) ? 'active' : '';
-        const visitedCls = isVisited(r.id) ? 'active' : '';
+        const want = isWant(r.id), visited = isVisited(r.id);
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
 
         card.innerHTML = `
-          <div class="${rc}">${rank}</div>
+          <div class="card-img-wrap">
+            ${r.image ? `<img src="${r.image}" alt="${r.name}" loading="lazy">` : ''}
+            <div class="${rc}">${rank}</div>
+          </div>
           <div class="card-body">
-            <div class="name" style="cursor:pointer;" onclick="openModal('${r.id}')">${r.name}</div>
+            <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
             <div class="area">📍 ${r.area || 'エリア不明'}</div>
             ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
             <div class="stats-row">
@@ -609,8 +775,9 @@
             </div>
             ${r.budget ? `<div class="budget-box">${r.budget}</div>` : ''}
             <div class="card-actions">
-              <button class="card-btn ${wantCls}" onclick="toggleWant('${r.id}');this.classList.toggle('active')">❤️ 行きたい</button>
-              <button class="card-btn ${visitedCls}" onclick="toggleVisited('${r.id}');this.classList.toggle('active')">✅ 行った</button>
+              <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); this.classList.toggle('active')">❤️</button>
+              <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); this.classList.toggle('active')">✅</button>
+              <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
               <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
             </div>
           </div>
@@ -624,15 +791,15 @@
     function renderPagination(total) {
       const pag = document.getElementById('pagination');
       if (total <= 1) { pag.innerHTML = ''; return; }
-      let html = `<button ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})">←</button>`;
+      let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})">←</button>`;
       let s = Math.max(1, currentPage - 3), e = Math.min(total, s + 6);
       if (e - s < 6) s = Math.max(1, e - 6);
       if (s > 1) html += `<button onclick="goPage(1)">1</button>`;
       if (s > 2) html += `<button disabled>...</button>`;
-      for (let i = s; i <= e; i++) html += `<button class="${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      for (let i = s; i <= e; i++) html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
       if (e < total - 1) html += `<button disabled>...</button>`;
       if (e < total) html += `<button onclick="goPage(${total})">${total}</button>`;
-      html += `<button ${currentPage===total?'disabled':''} onclick="goPage(${currentPage+1})">→</button>`;
+      html += `<button ${currentPage === total ? 'disabled' : ''} onclick="goPage(${currentPage + 1})">→</button>`;
       pag.innerHTML = html;
     }
 
@@ -647,55 +814,62 @@
       document.getElementById('score-min').value = 0;
       document.getElementById('score-val').textContent = '0';
       document.getElementById('per-page').value = '50';
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      activeAreaChip = ''; activeGenreChip = '';
       currentSort = { key: 'score', desc: true };
-      document.querySelectorAll('.btn-sort').forEach(b => { b.classList.remove('active'); b.querySelector('.sort-dir').textContent = '▼'; });
+      document.querySelectorAll('.btn-sort').forEach(b => { b.classList.remove('active'); b.querySelector('span').textContent = '▼'; });
       document.getElementById('btn-score').classList.add('active');
       applyFilter();
     }
 
-    // Modal
     function openModal(id) {
       const r = allData.find(x => x.id === id); if (!r) return;
       const want = isWant(r.id), visited = isVisited(r.id);
+      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
       document.getElementById('modal-body').innerHTML = `
-        <div class="modal-rank">Rank: ${filteredData.findIndex(x => x.id === id) + 1 || '-'}</div>
-        <div class="modal-name">${r.name}</div>
-        <div class="modal-meta">📍 ${r.area || ''} ${r.genre ? '｜' + r.genre : ''}</div>
-        <div class="modal-stats">
-          <div class="modal-stat"><div class="num">${r.score || '-'}</div><div class="lbl">スコア</div></div>
-          <div class="modal-stat"><div class="num">${r.save_count || '0'}</div><div class="lbl">保存</div></div>
-          <div class="modal-stat"><div class="num">${r.review_count || '0'}</div><div class="lbl">口コミ</div></div>
-        </div>
-        ${r.budget ? `<div class="modal-budget">💰 ${r.budget}</div>` : ''}
-        <div class="modal-btns">
-          <button class="card-btn ${want?'active':''}" onclick="toggleWant('${r.id}');this.classList.toggle('active')">❤️ 行きたい</button>
-          <button class="card-btn ${visited?'active':''}" onclick="toggleVisited('${r.id}');this.classList.toggle('active')">✅ 行った</button>
-          <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">食べログで見る →</a></div>
+        ${r.image ? `<img src="${r.image}" class="modal-img" alt="${r.name}">` : ''}
+        <div class="modal-body">
+          <div class="modal-rank">Rank: ${filteredData.findIndex(x => x.id === id) + 1 || '-'}</div>
+          <div class="modal-name">${r.name}</div>
+          <div class="modal-meta">📍 ${r.area || ''} ${r.genre ? '｜' + r.genre : ''}</div>
+          <div class="modal-stats">
+            <div class="modal-stat"><div class="num">${r.score || '-'}</div><div class="lbl">スコア</div></div>
+            <div class="modal-stat"><div class="num">${r.save_count || '0'}</div><div class="lbl">保存</div></div>
+            <div class="modal-stat"><div class="num">${r.review_count || '0'}</div><div class="lbl">口コミ</div></div>
+          </div>
+          ${r.budget ? `<div class="modal-budget">💰 ${r.budget}</div>` : ''}
+          <div class="modal-btns">
+            <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); this.classList.toggle('active')">❤️ 行きたい</button>
+            <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); this.classList.toggle('active')">✅ 行った</button>
+            <button class="card-btn" onclick="window.open('${mapUrl}', '_blank')">🗺️ 地図</button>
+            <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">食べログ→</a></div>
+          </div>
         </div>
       `;
       document.getElementById('modal').classList.add('open');
     }
     function closeModal(e) { if (!e || e.target.id === 'modal') document.getElementById('modal').classList.remove('open'); }
 
-    // MyPage
     function renderMyPage() {
       const wantIds = getWant(), visitedIds = getVisited();
       const wantList = document.getElementById('want-list');
       const visitedList = document.getElementById('visited-list');
-
       if (!wantIds.length) wantList.innerHTML = '<div class="mypage-empty">まだ登録されていません</div>';
       else wantList.innerHTML = wantIds.map(id => renderMyCard(id)).join('');
-
       if (!visitedIds.length) visitedList.innerHTML = '<div class="mypage-empty">まだ登録されていません</div>';
       else visitedList.innerHTML = visitedIds.map(id => renderMyCard(id)).join('');
     }
 
     function renderMyCard(id) {
       const r = allData.find(x => x.id === id); if (!r) return '';
+      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
       return `
         <div class="card">
+          <div class="card-img-wrap" style="height:160px;">
+            ${r.image ? `<img src="${r.image}" alt="${r.name}" loading="lazy">` : ''}
+          </div>
           <div class="card-body">
-            <div class="name" style="cursor:pointer;" onclick="openModal('${r.id}')">${r.name}</div>
+            <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
             <div class="area">📍 ${r.area || ''}</div>
             ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
             <div class="stats-row">
@@ -704,8 +878,9 @@
               <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
             </div>
             <div class="card-actions">
-              <button class="card-btn active" onclick="toggleWant('${r.id}');renderMyPage()">❤️ 解除</button>
-              <button class="card-btn ${isVisited(r.id)?'active':''}" onclick="toggleVisited('${r.id}');renderMyPage()">✅ 行った</button>
+              <button class="card-btn active" onclick="toggleWant('${r.id}'); renderMyPage()">❤️ 解除</button>
+              <button class="card-btn ${isVisited(r.id) ? 'active' : ''}" onclick="toggleVisited('${r.id}'); renderMyPage()">✅ 行った</button>
+              <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
               <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
             </div>
           </div>
@@ -713,7 +888,6 @@
       `;
     }
 
-    // Random
     function pickRandom() {
       if (!filteredData.length) { document.getElementById('random-result').innerHTML = '<div class="random-anim">該当するお店がありません</div>'; return; }
       const resultDiv = document.getElementById('random-result');
@@ -726,10 +900,14 @@
           clearInterval(interval);
           const r = filteredData[Math.floor(Math.random() * filteredData.length)];
           const want = isWant(r.id), visited = isVisited(r.id);
+          const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
           resultDiv.innerHTML = `
             <div class="card" style="text-align:left;">
+              <div class="card-img-wrap" style="height:200px;">
+                ${r.image ? `<img src="${r.image}" alt="${r.name}">` : ''}
+              </div>
               <div class="card-body">
-                <div class="name" style="cursor:pointer;" onclick="openModal('${r.id}')">${r.name}</div>
+                <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
                 <div class="area">📍 ${r.area || ''}</div>
                 ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
                 <div class="stats-row">
@@ -739,8 +917,9 @@
                 </div>
                 ${r.budget ? `<div class="budget-box">${r.budget}</div>` : ''}
                 <div class="card-actions">
-                  <button class="card-btn ${want?'active':''}" onclick="toggleWant('${r.id}');this.classList.toggle('active')">❤️ 行きたい</button>
-                  <button class="card-btn ${visited?'active':''}" onclick="toggleVisited('${r.id}');this.classList.toggle('active')">✅ 行った</button>
+                  <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); this.classList.toggle('active')">❤️ 行きたい</button>
+                  <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); this.classList.toggle('active')">✅ 行った</button>
+                  <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
                   <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
                 </div>
               </div>
@@ -750,97 +929,55 @@
       }, 80);
     }
 
-    // View toggle
-    function toggleView() {
-      isListView = !isListView;
-      document.body.classList.toggle('list-view', isListView);
-      document.getElementById('view-btn').textContent = isListView ? '☰' : '⊞';
-    }
-
-    // Dark mode
     function toggleDark() {
-      const html = document.documentElement;
-      const isDark = html.getAttribute('data-theme') === 'dark';
+      const html = document.documentElement, isDark = html.getAttribute('data-theme') === 'dark';
       if (isDark) { html.removeAttribute('data-theme'); localStorage.removeItem(LS_DARK); document.getElementById('dark-btn').textContent = '🌙'; }
       else { html.setAttribute('data-theme', 'dark'); localStorage.setItem(LS_DARK, '1'); document.getElementById('dark-btn').textContent = '☀️'; }
     }
 
-    // Init dark icon
-    if (document.documentElement.getAttribute('data-theme') === 'dark') document.getElementById('dark-btn').textContent = '☀️';
-
     // Export / Import / Share
     function exportData() {
       const data = { want: getWant(), visited: getVisited(), dark: localStorage.getItem(LS_DARK) === '1' };
-      const json = JSON.stringify(data);
-      document.getElementById('export-text').value = json;
+      document.getElementById('export-text').value = JSON.stringify(data);
       document.getElementById('export-box').style.display = 'block';
       document.getElementById('import-box').style.display = 'none';
       document.getElementById('share-box').style.display = 'none';
     }
-    function copyExport() {
-      const el = document.getElementById('export-text');
-      el.select();
-      document.execCommand('copy');
-      alert('クリップボードにコピーしました！');
-    }
-    function showImport() {
-      document.getElementById('import-box').style.display = 'block';
-      document.getElementById('export-box').style.display = 'none';
-      document.getElementById('share-box').style.display = 'none';
-      document.getElementById('import-msg').textContent = '';
-    }
-    function hideImport() {
-      document.getElementById('import-box').style.display = 'none';
-      document.getElementById('import-text').value = '';
-      document.getElementById('import-msg').textContent = '';
-    }
+    function copyExport() { const el = document.getElementById('export-text'); el.select(); document.execCommand('copy'); alert('クリップボードにコピーしました！'); }
+    function showImport() { document.getElementById('import-box').style.display = 'block'; document.getElementById('export-box').style.display = 'none'; document.getElementById('share-box').style.display = 'none'; document.getElementById('import-msg').textContent = ''; }
+    function hideImport() { document.getElementById('import-box').style.display = 'none'; document.getElementById('import-text').value = ''; document.getElementById('import-msg').textContent = ''; }
     function doImport() {
-      const text = document.getElementById('import-text').value.trim();
-      const msg = document.getElementById('import-msg');
+      const text = document.getElementById('import-text').value.trim(), msg = document.getElementById('import-msg');
       if (!text) { msg.textContent = 'テキストが空です'; msg.style.color = 'var(--primary)'; return; }
       try {
         const data = JSON.parse(text);
         if (!Array.isArray(data.want) || !Array.isArray(data.visited)) throw new Error('invalid');
-        if (confirm(`行きたい: ${data.want.length}件 / 行った: ${data.visited.length}件 を復元しますか？\n既存のデータは上書きされます。`)) {
-          saveWant(data.want);
-          saveVisited(data.visited);
+        if (confirm(`行きたい: ${data.want.length}件 / 行った: ${data.visited.length}件 を復元しますか？`)) {
+          saveWant(data.want); saveVisited(data.visited);
           if (data.dark) { localStorage.setItem(LS_DARK, '1'); document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('dark-btn').textContent = '☀️'; }
           else { localStorage.removeItem(LS_DARK); document.documentElement.removeAttribute('data-theme'); document.getElementById('dark-btn').textContent = '🌙'; }
-          msg.textContent = '✅ 復元が完了しました！';
-          msg.style.color = '#28a745';
-          renderMyPage();
-          applyFilter();
+          msg.textContent = '✅ 復元が完了しました！'; msg.style.color = '#28a745';
+          renderMyPage(); applyFilter();
         }
-      } catch (e) {
-        msg.textContent = '❌ データ形式が正しくありません';
-        msg.style.color = 'var(--primary)';
-      }
+      } catch (e) { msg.textContent = '❌ データ形式が正しくありません'; msg.style.color = 'var(--primary)'; }
     }
     function shareByUrl() {
       const data = { want: getWant(), visited: getVisited() };
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-      const url = location.origin + location.pathname + '?d=' + b64;
-      document.getElementById('share-url').value = url;
+      document.getElementById('share-url').value = location.origin + location.pathname + '?d=' + b64;
       document.getElementById('share-box').style.display = 'block';
       document.getElementById('export-box').style.display = 'none';
       document.getElementById('import-box').style.display = 'none';
     }
-    function copyShare() {
-      const el = document.getElementById('share-url');
-      el.select();
-      document.execCommand('copy');
-      alert('URLをコピーしました！');
-    }
+    function copyShare() { const el = document.getElementById('share-url'); el.select(); document.execCommand('copy'); alert('URLをコピーしました！'); }
     function loadFromUrl() {
-      const params = new URLSearchParams(location.search);
-      const d = params.get('d');
+      const params = new URLSearchParams(location.search), d = params.get('d');
       if (d) {
         try {
           const data = JSON.parse(decodeURIComponent(escape(atob(d))));
           if (Array.isArray(data.want) && Array.isArray(data.visited)) {
             if (confirm(`共有されたリストを読み込みますか？\n行きたい: ${data.want.length}件 / 行った: ${data.visited.length}件`)) {
-              saveWant(data.want);
-              saveVisited(data.visited);
+              saveWant(data.want); saveVisited(data.visited);
               history.replaceState(null, '', location.pathname);
               setTab('mypage');
             }
@@ -849,7 +986,150 @@
       }
     }
 
-    // Event listeners
+    // Night & Lunch tab rendering
+    let sortNight = 'score', nightPage = 1;
+    function renderNight() {
+      const search = document.getElementById('night-search').value.toLowerCase().trim();
+      const genre = document.getElementById('night-genre').value;
+      const budget = document.getElementById('night-budget').value;
+      let data = allData.filter(r => r.genre !== '居酒屋');
+      data = data.filter(r => {
+        if (search && !r.name.toLowerCase().includes(search)) return false;
+        if (genre && r.genre !== genre) return false;
+        if (budget) { const max = parseInt(budget); if (r.budgetMax > max) return false; }
+        return true;
+      });
+      const dir = -1;
+      data.sort((a, b) => { if (sortNight === 'score') return dir * (a.scoreNum - b.scoreNum); if (sortNight === 'save') return dir * (a.saveNum - b.saveNum); if (sortNight === 'review') return dir * (a.reviewNum - b.reviewNum); return 0; });
+
+      // Stats
+      const avgScore = data.length ? (data.reduce((s, r) => s + r.scoreNum, 0) / data.length).toFixed(2) : '-';
+      const avgBudget = data.length ? '￥' + Math.round(data.reduce((s, r) => s + (r.budgetMax === 999999 ? 5000 : r.budgetMax), 0) / data.length).toLocaleString() : '-';
+      const ns = document.querySelectorAll('#night-stats .summary-card .value');
+      ns[0].textContent = data.length.toLocaleString() + '件';
+      ns[1].textContent = avgScore;
+      ns[2].textContent = avgBudget;
+
+      // Grid
+      const perPage = 20;
+      const start = (nightPage - 1) * perPage;
+      const pageData = data.slice(start, start + perPage);
+      const grid = document.getElementById('night-grid');
+      if (!pageData.length) { grid.innerHTML = '<div class="empty"><div class="empty-icon">🌙</div><p>該当するお店が見つかりません</p></div>'; document.getElementById('night-pagination').innerHTML = ''; return; }
+
+      grid.innerHTML = pageData.map((r, idx) => {
+        const rank = start + idx + 1;
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
+        const want = isWant(r.id), visited = isVisited(r.id);
+        return `
+          <div class="card">
+            <div class="card-img-wrap" style="height:180px;">
+              ${r.image ? `<img src="${r.image}" alt="${r.name}" loading="lazy">` : ''}
+              <div class="rank-badge" style="width:36px;height:36px;font-size:0.9rem;">${rank}</div>
+            </div>
+            <div class="card-body">
+              <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
+              <div class="area">📍 ${r.area || ''}</div>
+              ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+              <div class="stats-row">
+                <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
+                <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
+                <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
+              </div>
+              ${r.budget ? `<div class="budget-box">${r.budget}</div>` : ''}
+              <div class="card-actions">
+                <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); renderNight()">❤️</button>
+                <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); renderNight()">✅</button>
+                <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
+                <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Pagination
+      const total = Math.ceil(data.length / perPage);
+      const pag = document.getElementById('night-pagination');
+      if (total <= 1) { pag.innerHTML = ''; return; }
+      let html = `<button ${nightPage === 1 ? 'disabled' : ''} onclick="nightPage--; renderNight()">←</button>`;
+      for (let i = 1; i <= total; i++) html += `<button class="${i === nightPage ? 'active' : ''}" onclick="nightPage=${i}; renderNight()">${i}</button>`;
+      html += `<button ${nightPage === total ? 'disabled' : ''} onclick="nightPage++; renderNight()">→</button>`;
+      pag.innerHTML = html;
+    }
+
+    let sortLunch = 'score', lunchPage = 1;
+    function renderLunch() {
+      const search = document.getElementById('lunch-search').value.toLowerCase().trim();
+      const genre = document.getElementById('lunch-genre').value;
+      const budget = document.getElementById('lunch-budget').value;
+      let data = allData.filter(r => r.hasLunch);
+      data = data.filter(r => {
+        if (search && !r.name.toLowerCase().includes(search)) return false;
+        if (genre && r.genre !== genre) return false;
+        if (budget !== '') { const max = parseInt(budget); if (r.lunchBudget > max) return false; }
+        return true;
+      });
+      const dir = sortLunch === 'lunch' ? 1 : -1;
+      data.sort((a, b) => { if (sortLunch === 'score') return dir * (a.scoreNum - b.scoreNum); if (sortLunch === 'save') return dir * (a.saveNum - b.saveNum); if (sortLunch === 'lunch') return dir * (a.lunchBudget - b.lunchBudget); return 0; });
+
+      // Stats
+      const avgLunch = data.length ? '￥' + Math.round(data.reduce((s, r) => s + r.lunchBudget, 0) / data.length).toLocaleString() : '-';
+      const avgScore = data.length ? (data.reduce((s, r) => s + r.scoreNum, 0) / data.length).toFixed(2) : '-';
+      const ls = document.querySelectorAll('#lunch-stats .summary-card .value');
+      ls[0].textContent = data.length.toLocaleString() + '件';
+      ls[1].textContent = avgLunch;
+      ls[2].textContent = avgScore;
+
+      // Grid
+      const perPage = 20;
+      const start = (lunchPage - 1) * perPage;
+      const pageData = data.slice(start, start + perPage);
+      const grid = document.getElementById('lunch-grid');
+      if (!pageData.length) { grid.innerHTML = '<div class="empty"><div class="empty-icon">🍽️</div><p>該当するお店が見つかりません</p></div>'; document.getElementById('lunch-pagination').innerHTML = ''; return; }
+
+      grid.innerHTML = pageData.map((r, idx) => {
+        const rank = start + idx + 1;
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
+        const want = isWant(r.id), visited = isVisited(r.id);
+        const lunchPrice = r.budget && r.budget.includes('昼') ? r.budget.split('／')[0] : (r.budget || '');
+        return `
+          <div class="card">
+            <div class="card-img-wrap" style="height:180px;">
+              ${r.image ? `<img src="${r.image}" alt="${r.name}" loading="lazy">` : ''}
+              <div class="rank-badge" style="width:36px;height:36px;font-size:0.9rem;">${rank}</div>
+            </div>
+            <div class="card-body">
+              <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
+              <div class="area">📍 ${r.area || ''}</div>
+              ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+              <div class="stats-row">
+                <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
+                <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
+                <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
+              </div>
+              ${lunchPrice ? `<div class="budget-box">🌞 ${lunchPrice}</div>` : ''}
+              <div class="card-actions">
+                <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); renderLunch()">❤️</button>
+                <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); renderLunch()">✅</button>
+                <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
+                <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Pagination
+      const total = Math.ceil(data.length / perPage);
+      const pag = document.getElementById('lunch-pagination');
+      if (total <= 1) { pag.innerHTML = ''; return; }
+      let html = `<button ${lunchPage === 1 ? 'disabled' : ''} onclick="lunchPage--; renderLunch()">←</button>`;
+      for (let i = 1; i <= total; i++) html += `<button class="${i === lunchPage ? 'active' : ''}" onclick="lunchPage=${i}; renderLunch()">${i}</button>`;
+      html += `<button ${lunchPage === total ? 'disabled' : ''} onclick="lunchPage++; renderLunch()">→</button>`;
+      pag.innerHTML = html;
+    }
+
     document.getElementById('search-input').addEventListener('input', applyFilter);
     document.getElementById('genre-filter').addEventListener('change', applyFilter);
     document.getElementById('area-filter').addEventListener('change', applyFilter);
