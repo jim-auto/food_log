@@ -413,7 +413,7 @@
           <div class="control-group">
             <label>🍰 除外設定</label>
             <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
-              <input type="checkbox" id="no-sweets" onchange="applyFilter()" style="width:auto;cursor:pointer;">
+              <input type="checkbox" id="no-sweets" onchange="applyFilter()" checked style="width:auto;cursor:pointer;">
               <label for="no-sweets" style="font-size:0.85rem;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;font-weight:normal;">お菓子・カフェ系を除外</label>
             </div>
           </div>
@@ -535,7 +535,7 @@
           <div class="control-group">
             <label>🍰 除外設定</label>
             <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
-              <input type="checkbox" id="lunch-no-sweets" onchange="renderLunch()" style="width:auto;cursor:pointer;">
+              <input type="checkbox" id="lunch-no-sweets" onchange="renderLunch()" checked style="width:auto;cursor:pointer;">
               <label for="lunch-no-sweets" style="font-size:0.85rem;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;font-weight:normal;">お菓子・カフェ系を除外</label>
             </div>
           </div>
@@ -860,7 +860,7 @@
       document.getElementById('score-min').value = 0;
       document.getElementById('score-val').textContent = '0';
       document.getElementById('open-today').checked = false;
-      document.getElementById('no-sweets').checked = false;
+      document.getElementById('no-sweets').checked = true;
       document.getElementById('per-page').value = '50';
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       activeAreaChip = ''; activeGenreChip = '';
