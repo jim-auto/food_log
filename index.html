@@ -323,6 +323,12 @@
       background: var(--bg); color: var(--text);
     }
 
+    .visit-meta { font-size: 0.78rem; color: var(--text-light); margin: 6px 0; padding: 8px 10px; background: rgba(128,128,128,0.06); border-radius: 8px; }
+    .visit-meta .date { font-weight: bold; color: var(--primary); margin-bottom: 2px; }
+    .visit-meta .memo { margin-top: 4px; font-style: italic; word-break: break-word; }
+    .memo-btn { padding: 4px 10px; font-size: 0.72rem; border-radius: 8px; border: 1.5px solid var(--border); background: transparent; cursor: pointer; color: var(--text-light); margin-top: 6px; transition: all 0.2s; }
+    .memo-btn:hover { border-color: var(--primary); color: var(--primary); }
+    #memo-modal .modal { max-width: 420px; }
     footer { text-align: center; margin-top: 40px; padding: 24px 20px; color: #999; font-size: 0.75rem; }
     @media (max-width: 640px) {
       .header h1 { font-size: 1.4rem; }
@@ -475,9 +481,13 @@
             <label>🔍 店名検索</label>
             <input type="text" id="night-search" placeholder="店名の一部を入力..." oninput="renderNight()">
           </div>
-          <div class="control-group">
+           <div class="control-group">
             <label>🏷️ ジャンル</label>
             <select id="night-genre" onchange="renderNight()"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>📍 エリア</label>
+            <select id="night-area" onchange="renderNight()"><option value="">すべて</option></select>
           </div>
           <div class="control-group">
             <label>💰 夜予算上限</label>
@@ -528,6 +538,10 @@
           <div class="control-group">
             <label>🏷️ ジャンル</label>
             <select id="lunch-genre" onchange="renderLunch()"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>📍 エリア</label>
+            <select id="lunch-area" onchange="renderLunch()"><option value="">すべて</option></select>
           </div>
           <div class="control-group">
             <label>💰 昼予算上限</label>
@@ -617,27 +631,71 @@
     </div>
   </div>
 
+  <!-- MEMO MODAL -->
+  <div class="modal-overlay" id="memo-modal" onclick="closeMemoModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeMemoModal()">&times;</button>
+      <div class="modal-body">
+        <div class="modal-name" id="memo-modal-title">訪問記録</div>
+        <div class="control-group" style="margin: 14px 0 10px;">
+          <label>訪問日</label>
+          <input type="date" id="memo-date" style="padding: 8px 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.85rem; width: 100%; background: var(--card-bg); color: var(--text); outline: none;">
+        </div>
+        <div class="control-group" style="margin: 10px 0;">
+          <label>メモ</label>
+          <textarea id="memo-text" rows="3" style="padding: 10px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.85rem; width: 100%; background: var(--card-bg); color: var(--text); outline: none; resize: vertical; font-family: inherit;"></textarea>
+        </div>
+        <button class="btn active" style="width:100%; margin-top:10px;" onclick="saveMemo()">💾 保存</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     Generated from tabelog.com | 非公式スクレイピングデータ | GitHub Pages
   </footer>
 
   <script>
-    const LS_WANT = 'tabelog_want', LS_VISITED = 'tabelog_visited', LS_DARK = 'tabelog_dark';
+    const LS_WANT = 'tabelog_want', LS_VISITED = 'tabelog_visited', LS_VISITED_META = 'tabelog_visited_meta', LS_DARK = 'tabelog_dark';
     let allData = [], filteredData = [], currentSort = { key: 'score', desc: true }, currentPage = 1;
-    let activeAreaChip = '', activeGenreChip = '';
+    let activeAreaChip = '', activeGenreChip = '', editingMemoId = null;
 
     function getWant() { return JSON.parse(localStorage.getItem(LS_WANT) || '[]'); }
     function getVisited() { return JSON.parse(localStorage.getItem(LS_VISITED) || '[]'); }
+    function getVisitedMeta() { return JSON.parse(localStorage.getItem(LS_VISITED_META) || '{}'); }
     function saveWant(arr) { localStorage.setItem(LS_WANT, JSON.stringify(arr)); updateBadge(); }
     function saveVisited(arr) { localStorage.setItem(LS_VISITED, JSON.stringify(arr)); updateBadge(); }
+    function saveVisitedMeta(obj) { localStorage.setItem(LS_VISITED_META, JSON.stringify(obj)); }
+    function getMeta(id) { return getVisitedMeta()[id] || {}; }
     function toggleWant(id) { const arr = getWant(); const i = arr.indexOf(id); i > -1 ? arr.splice(i, 1) : arr.push(id); saveWant(arr); applyFilter(); }
-    function toggleVisited(id) { const arr = getVisited(); const i = arr.indexOf(id); i > -1 ? arr.splice(i, 1) : arr.push(id); saveVisited(arr); applyFilter(); }
+    function toggleVisited(id) {
+      const arr = getVisited(); const i = arr.indexOf(id);
+      if (i > -1) {
+        arr.splice(i, 1);
+        const meta = getVisitedMeta(); delete meta[id]; saveVisitedMeta(meta);
+      } else {
+        arr.push(id);
+        const meta = getVisitedMeta(); if (!meta[id]) meta[id] = {}; meta[id].date = meta[id].date || new Date().toISOString().split('T')[0]; saveVisitedMeta(meta);
+      }
+      saveVisited(arr); applyFilter();
+    }
     function isWant(id) { return getWant().includes(id); }
     function isVisited(id) { return getVisited().includes(id); }
     function updateBadge() { const t = getWant().length + getVisited().length; document.getElementById('mypage-badge').textContent = t; }
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
 
     // Set today's day name
     document.getElementById('today-label').textContent = ['日','月','火','水','木','金','土'][new Date().getDay()];
+
+    function simplifyArea(areaStr) {
+      if (!areaStr) return '';
+      // Remove distance like "743m" or "1.2km"
+      return areaStr.replace(/\s*\d+m$/, '').replace(/\s*\d+\.?\d*km$/, '').trim();
+    }
 
     const GENRE_MAP = {
       'ラーメン': 'ラーメン', 'つけ麺': 'ラーメン',
@@ -690,10 +748,13 @@
           r.lunchBudget = parseLunchBudget(r.budget);
           r.hasLunch = r.budget && r.budget.includes('昼');
           r.genreSimple = simplifyGenre(r.genre);
+          r.areaSimple = simplifyArea(r.area);
         });
         populateFilters();
         populateNightFilters();
         populateLunchFilters();
+        populateNightAreaFilter();
+        populateLunchAreaFilter();
         populateChips();
         updateSummary(allData);
         applyFilter();
@@ -705,10 +766,11 @@
 
     function populateFilters() {
       const genres = [...new Set(allData.map(r => r.genreSimple).filter(Boolean))].sort();
-      const areas = [...new Set(allData.map(r => r.area).filter(Boolean))].sort();
+      const areas = [...new Set(allData.map(r => r.areaSimple).filter(Boolean))].sort();
       const gSel = document.getElementById('genre-filter');
       const aSel = document.getElementById('area-filter');
       while (gSel.options.length > 1) gSel.remove(1);
+      while (aSel.options.length > 1) aSel.remove(1);
       genres.forEach(g => gSel.add(new Option(g, g)));
       areas.forEach(a => aSel.add(new Option(a, a)));
     }
@@ -716,7 +778,7 @@
     function populateChips() {
       // Popular areas
       const areaCounts = {};
-      allData.forEach(r => { if (r.area) areaCounts[r.area] = (areaCounts[r.area] || 0) + 1; });
+      allData.forEach(r => { if (r.areaSimple) areaCounts[r.areaSimple] = (areaCounts[r.areaSimple] || 0) + 1; });
       const topAreas = Object.entries(areaCounts).sort((a, b) => b[1] - a[1]).slice(0, 12);
       const areaContainer = document.getElementById('area-chips');
       areaContainer.innerHTML = topAreas.map(([a, c]) => `<span class="chip" data-area="${a}" onclick="toggleAreaChip(this)">${a} (${c})</span>`).join('');
@@ -748,6 +810,21 @@
       if (activeAreaChip === val) { activeAreaChip = ''; document.getElementById('area-filter').value = ''; }
       else { activeAreaChip = val; el.classList.add('active'); document.getElementById('area-filter').value = val; }
       applyFilter();
+    }
+
+    function populateNightAreaFilter() {
+      const areas = [...new Set(allData.filter(r => r.genreSimple !== '居酒屋・バル' && r.genreSimple !== 'バー').map(r => r.areaSimple).filter(Boolean))].sort();
+      const sel = document.getElementById('night-area');
+      if (!sel) return;
+      while (sel.options.length > 1) sel.remove(1);
+      areas.forEach(a => sel.add(new Option(a, a)));
+    }
+    function populateLunchAreaFilter() {
+      const areas = [...new Set(allData.filter(r => r.budgetMax <= 8000).map(r => r.areaSimple).filter(Boolean))].sort();
+      const sel = document.getElementById('lunch-area');
+      if (!sel) return;
+      while (sel.options.length > 1) sel.remove(1);
+      areas.forEach(a => sel.add(new Option(a, a)));
     }
 
     function toggleGenreChip(el) {
@@ -814,7 +891,7 @@
       filteredData = allData.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
-        if (area && (!r.area || !r.area.includes(area))) return false;
+        if (area && r.areaSimple !== area) return false;
         if (budget) { const max = parseInt(budget); if (max >= 20000 ? r.budgetMax < 20000 : r.budgetMax > max) return false; }
         if (dist) { const max = parseInt(dist); if (parseDistance(r.area) > max) return false; }
         if (scoreMin > 0 && r.scoreNum < scoreMin) return false;
@@ -953,14 +1030,42 @@
       const wantList = document.getElementById('want-list');
       const visitedList = document.getElementById('visited-list');
       if (!wantIds.length) wantList.innerHTML = '<div class="mypage-empty">まだ登録されていません</div>';
-      else wantList.innerHTML = wantIds.map(id => renderMyCard(id)).join('');
+      else wantList.innerHTML = wantIds.map(id => renderMyCard(id, 'want')).join('');
       if (!visitedIds.length) visitedList.innerHTML = '<div class="mypage-empty">まだ登録されていません</div>';
-      else visitedList.innerHTML = visitedIds.map(id => renderMyCard(id)).join('');
+      else visitedList.innerHTML = visitedIds.map(id => renderMyCard(id, 'visited')).join('');
     }
 
-    function renderMyCard(id) {
+    function renderMyCard(id, listType) {
       const r = allData.find(x => x.id === id); if (!r) return '';
       const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
+      const want = isWant(r.id), visited = isVisited(r.id);
+      const meta = listType === 'visited' ? getMeta(r.id) : null;
+
+      let actionsHtml = '';
+      if (listType === 'want') {
+        actionsHtml = `
+          <button class="card-btn active" onclick="toggleWant('${r.id}'); renderMyPage()">❤️ 解除</button>
+          <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); renderMyPage()">✅ ${visited ? '解除' : '行った'}</button>
+          <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
+          <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
+        `;
+      } else {
+        actionsHtml = `
+          <button class="card-btn active" onclick="toggleVisited('${r.id}'); renderMyPage()">✅ 解除</button>
+          <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); renderMyPage()">❤️ ${want ? '解除' : '行きたい'}</button>
+          <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
+          <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
+        `;
+      }
+
+      const metaHtml = listType === 'visited' ? `
+        <div class="visit-meta">
+          <div class="date">📅 ${meta.date || '日付未設定'}</div>
+          ${meta.memo ? `<div class="memo">📝 ${escapeHtml(meta.memo)}</div>` : ''}
+          <button class="memo-btn" onclick="openMemoModal('${r.id}')">✏️ 編集</button>
+        </div>
+      ` : '';
+
       return `
         <div class="card">
           <div class="card-img-wrap" style="height:160px;">
@@ -975,11 +1080,9 @@
               <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
               <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
             </div>
+            ${metaHtml}
             <div class="card-actions">
-              <button class="card-btn active" onclick="toggleWant('${r.id}'); renderMyPage()">❤️ 解除</button>
-              <button class="card-btn ${isVisited(r.id) ? 'active' : ''}" onclick="toggleVisited('${r.id}'); renderMyPage()">✅ 行った</button>
-              <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
-              <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
+              ${actionsHtml}
             </div>
           </div>
         </div>
@@ -1035,7 +1138,7 @@
 
     // Export / Import / Share
     function exportData() {
-      const data = { want: getWant(), visited: getVisited(), dark: localStorage.getItem(LS_DARK) === '1' };
+      const data = { want: getWant(), visited: getVisited(), visitedMeta: getVisitedMeta(), dark: localStorage.getItem(LS_DARK) === '1' };
       document.getElementById('export-text').value = JSON.stringify(data);
       document.getElementById('export-box').style.display = 'block';
       document.getElementById('import-box').style.display = 'none';
@@ -1052,6 +1155,7 @@
         if (!Array.isArray(data.want) || !Array.isArray(data.visited)) throw new Error('invalid');
         if (confirm(`行きたい: ${data.want.length}件 / 行った: ${data.visited.length}件 を復元しますか？`)) {
           saveWant(data.want); saveVisited(data.visited);
+          saveVisitedMeta(data.visitedMeta || {});
           if (data.dark) { localStorage.setItem(LS_DARK, '1'); document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('dark-btn').textContent = '☀️'; }
           else { localStorage.removeItem(LS_DARK); document.documentElement.removeAttribute('data-theme'); document.getElementById('dark-btn').textContent = '🌙'; }
           msg.textContent = '✅ 復元が完了しました！'; msg.style.color = '#28a745';
@@ -1060,7 +1164,7 @@
       } catch (e) { msg.textContent = '❌ データ形式が正しくありません'; msg.style.color = 'var(--primary)'; }
     }
     function shareByUrl() {
-      const data = { want: getWant(), visited: getVisited() };
+      const data = { want: getWant(), visited: getVisited(), visitedMeta: getVisitedMeta() };
       const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
       document.getElementById('share-url').value = location.origin + location.pathname + '?d=' + b64;
       document.getElementById('share-box').style.display = 'block';
@@ -1076,6 +1180,7 @@
           if (Array.isArray(data.want) && Array.isArray(data.visited)) {
             if (confirm(`共有されたリストを読み込みますか？\n行きたい: ${data.want.length}件 / 行った: ${data.visited.length}件`)) {
               saveWant(data.want); saveVisited(data.visited);
+              saveVisitedMeta(data.visitedMeta || {});
               history.replaceState(null, '', location.pathname);
               setTab('mypage');
             }
@@ -1084,6 +1189,28 @@
       }
     }
 
+    function openMemoModal(id) {
+      editingMemoId = id;
+      const r = allData.find(x => x.id === id);
+      document.getElementById('memo-modal-title').textContent = (r ? r.name : '訪問記録');
+      const meta = getMeta(id);
+      document.getElementById('memo-date').value = meta.date || '';
+      document.getElementById('memo-text').value = meta.memo || '';
+      document.getElementById('memo-modal').classList.add('open');
+    }
+    function closeMemoModal(e) { if (!e || e.target.id === 'memo-modal') document.getElementById('memo-modal').classList.remove('open'); }
+    function saveMemo() {
+      if (!editingMemoId) return;
+      const date = document.getElementById('memo-date').value;
+      const memo = document.getElementById('memo-text').value.trim();
+      const meta = getVisitedMeta();
+      if (!meta[editingMemoId]) meta[editingMemoId] = {};
+      meta[editingMemoId].date = date;
+      meta[editingMemoId].memo = memo;
+      saveVisitedMeta(meta);
+      closeMemoModal();
+      renderMyPage();
+    }
     function parseDistance(area) { if (!area) return 999999; const m = area.match(/(\d+)m/); return m ? parseInt(m[1]) : 999999; }
 
     // Night & Lunch tab rendering
@@ -1091,12 +1218,14 @@
     function renderNight() {
       const search = document.getElementById('night-search').value.toLowerCase().trim();
       const genre = document.getElementById('night-genre').value;
+      const area = document.getElementById('night-area').value;
       const budget = document.getElementById('night-budget').value;
       const noSweets = document.getElementById('night-no-sweets').checked;
       let data = allData.filter(r => r.genreSimple !== '居酒屋・バル' && r.genreSimple !== 'バー');
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
+        if (area && r.areaSimple !== area) return false;
         if (budget) { const max = parseInt(budget); if (r.budgetMax > max) return false; }
         if (noSweets && r.genreSimple === 'カフェ・スイーツ') return false;
         return true;
@@ -1164,6 +1293,7 @@
     function renderLunch() {
       const search = document.getElementById('lunch-search').value.toLowerCase().trim();
       const genre = document.getElementById('lunch-genre').value;
+      const area = document.getElementById('lunch-area').value;
       const budget = document.getElementById('lunch-budget').value;
       const noSweets = document.getElementById('lunch-no-sweets').checked;
       // Lunch = budgetMax <= 8000 (casual dining)
@@ -1171,6 +1301,7 @@
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
+        if (area && r.areaSimple !== area) return false;
         if (budget !== '') { const max = parseInt(budget); if (r.budgetMax > max) return false; }
         if (noSweets && r.genreSimple === 'カフェ・スイーツ') return false;
         return true;
