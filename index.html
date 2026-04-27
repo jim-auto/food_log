@@ -584,7 +584,7 @@
         <div class="summary-card"><div class="value">-</div><div class="label">平均スコア</div></div>
       </div>
       <div class="controls-panel">
-        <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:12px;">🍽️ ランチメニューあり＆コスパ良しのお店。昼予算￥3,000以下で絞り込み。</p>
+        <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:12px;">🍽️ 昼営業ありのお店。昼予算データがある店舗は 🌞 マークで表示。</p>
         <div class="controls-grid">
           <div class="control-group">
             <label>🔍 店名検索</label>
@@ -753,7 +753,10 @@
     function simplifyArea(areaStr) {
       if (!areaStr) return '';
       // Remove distance like "743m" or "1.2km"
-      return areaStr.replace(/\s*\d+m$/, '').replace(/\s*\d+\.?\d*km$/, '').trim();
+      let area = areaStr.replace(/\s*\d+m$/, '').replace(/\s*\d+\.?\d*km$/, '').trim();
+      // Group Nagoya station variants
+      if (area === '名古屋駅' || area === '名鉄名古屋駅' || area === '近鉄名古屋駅') return '名駅';
+      return area;
     }
 
     const GENRE_MAP = {
@@ -830,8 +833,10 @@
           r.reviewNum = parseInt((r.review_count || '0').replace(/[^0-9]/g, '')) || 0;
           r.saveNum = parseInt((r.save_count || '0').replace(/[^0-9]/g, '')) || 0;
           r.budgetMax = parseBudget(r.budget);
-          r.lunchBudget = parseLunchBudget(r.budget);
-          r.hasLunch = r.budget && r.budget.includes('昼');
+          // Use lunch_budget field if available, otherwise fall back to parsing budget field
+          r.lunchBudget = r.lunch_budget ? parseBudget(r.lunch_budget) : parseLunchBudget(r.budget);
+          r.lunchBudgetDisplay = r.lunch_budget || '';
+          r.hasLunch = !!(r.lunch_budget || (r.budget && r.budget.includes('昼')));
           r.genreSimple = simplifyGenre(r.genre);
           r.areaSimple = simplifyArea(r.area);
         });
@@ -1489,22 +1494,26 @@
       const station = document.getElementById('lunch-station').value;
       const budget = document.getElementById('lunch-budget').value;
       const noSweets = document.getElementById('lunch-no-sweets').checked;
-      // Lunch = budgetMax <= 8000 (casual dining)
-      let data = allData.filter(r => r.budgetMax <= 8000);
+      // Lunch = has lunch_budget field OR budgetMax <= 8000 (casual dining)
+      let data = allData.filter(r => r.lunch_budget || r.budgetMax <= 8000);
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
         if (line) { const sts = LINE_TO_STATIONS[line] || []; if (!sts.includes(r.areaSimple)) return false; }
         if (station && r.areaSimple !== station) return false;
-        if (budget !== '') { const max = parseInt(budget); if (r.budgetMax > max) return false; }
+        if (budget !== '') {
+          const max = parseInt(budget);
+          const checkBudget = r.lunchBudget !== 999999 ? r.lunchBudget : r.budgetMax;
+          if (checkBudget > max) return false;
+        }
         if (noSweets && r.genreSimple === 'カフェ・スイーツ') return false;
         return true;
       });
       const dir = sortLunch === 'lunch' ? 1 : -1;
-      data.sort((a, b) => { if (sortLunch === 'score') return dir * (a.scoreNum - b.scoreNum); if (sortLunch === 'save') return dir * (a.saveNum - b.saveNum); if (sortLunch === 'lunch') return dir * (a.budgetMax - b.budgetMax); return 0; });
+      data.sort((a, b) => { if (sortLunch === 'score') return dir * (a.scoreNum - b.scoreNum); if (sortLunch === 'save') return dir * (a.saveNum - b.saveNum); if (sortLunch === 'lunch') return dir * ((a.lunchBudget !== 999999 ? a.lunchBudget : a.budgetMax) - (b.lunchBudget !== 999999 ? b.lunchBudget : b.budgetMax)); return 0; });
 
       // Stats
-      const avgBudget = data.length ? '￥' + Math.round(data.reduce((s, r) => s + r.budgetMax, 0) / data.length).toLocaleString() : '-';
+      const avgBudget = data.length ? '￥' + Math.round(data.reduce((s, r) => s + (r.lunchBudget !== 999999 ? r.lunchBudget : r.budgetMax), 0) / data.length).toLocaleString() : '-';
       const avgScore = data.length ? (data.reduce((s, r) => s + r.scoreNum, 0) / data.length).toFixed(2) : '-';
       const ls = document.querySelectorAll('#lunch-stats .summary-card .value');
       ls[0].textContent = data.length.toLocaleString() + '件';
@@ -1522,7 +1531,8 @@
         const rank = start + idx + 1;
         const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
         const want = isWant(r.id), visited = isVisited(r.id);
-        const lunchPrice = r.budget && r.budget.includes('昼') ? r.budget.split('／')[0] : (r.budget || '');
+        const lunchPrice = r.lunchBudgetDisplay || (r.budget && r.budget.includes('昼') ? r.budget.split('／')[0] : (r.budget || ''));
+        const hasLunchLabel = r.lunch_budget ? '🌞 昼' : '';
         return `
           <div class="card">
             <div class="card-img-wrap" style="height:180px;">
@@ -1538,7 +1548,7 @@
                 <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
                 <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
               </div>
-              ${lunchPrice ? `<div class="budget-box">🌞 ${lunchPrice}</div>` : ''}
+              ${lunchPrice ? `<div class="budget-box">${hasLunchLabel} ${lunchPrice}</div>` : ''}
               <div class="card-actions">
                 <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); renderLunch()">❤️</button>
                 <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); renderLunch()">✅</button>
