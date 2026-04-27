@@ -410,6 +410,39 @@
 
       <div class="section-title" style="margin-top:30px;">✅ 行ったリスト</div>
       <div id="visited-list" class="mypage-grid"><div class="mypage-empty">まだ登録されていません</div></div>
+
+      <div style="margin-top:40px;background:var(--card-bg);padding:24px;border-radius:var(--radius);box-shadow:var(--shadow);">
+        <div class="section-title">💾 データ管理</div>
+        <p style="color:var(--text-light);font-size:0.85rem;margin-bottom:16px;">データはこの端末のブラウザに保存されています。バックアップを取っておけば、別端末やブラウザキャッシュ削除時に復元できます。</p>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+          <button class="btn" onclick="exportData()" style="background:var(--primary);color:#fff;border-color:var(--primary);">📤 エクスポート（コピー）</button>
+          <button class="btn" onclick="showImport()">📥 インポート</button>
+          <button class="btn" onclick="shareByUrl()">🔗 URLで共有</button>
+        </div>
+
+        <div id="export-box" style="display:none;margin-bottom:16px;">
+          <label style="font-size:0.8rem;color:var(--text-light);font-weight:600;">バックアップテキスト（コピーして保存してください）</label>
+          <textarea id="export-text" readonly style="width:100%;height:100px;margin-top:6px;padding:10px;border:2px solid var(--border);border-radius:10px;font-family:monospace;font-size:0.8rem;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
+          <button class="btn" onclick="copyExport()" style="margin-top:8px;font-size:0.8rem;">📋 クリップボードにコピー</button>
+        </div>
+
+        <div id="import-box" style="display:none;">
+          <label style="font-size:0.8rem;color:var(--text-light);font-weight:600;">バックアップテキストを貼り付けてください</label>
+          <textarea id="import-text" style="width:100%;height:100px;margin-top:6px;padding:10px;border:2px solid var(--border);border-radius:10px;font-family:monospace;font-size:0.8rem;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
+          <div style="display:flex;gap:10px;margin-top:8px;">
+            <button class="btn" onclick="doImport()" style="background:var(--accent);color:#fff;border-color:var(--accent);">✅ 復元する</button>
+            <button class="btn" onclick="hideImport()">キャンセル</button>
+          </div>
+          <p id="import-msg" style="font-size:0.8rem;margin-top:8px;"></p>
+        </div>
+
+        <div id="share-box" style="display:none;margin-bottom:16px;">
+          <label style="font-size:0.8rem;color:var(--text-light);font-weight:600;">共有URL（コピーして送ってください）</label>
+          <input id="share-url" type="text" readonly style="width:100%;margin-top:6px;padding:10px;border:2px solid var(--border);border-radius:10px;font-size:0.8rem;background:var(--bg);color:var(--text);">
+          <button class="btn" onclick="copyShare()" style="margin-top:8px;font-size:0.8rem;">📋 URLをコピー</button>
+        </div>
+      </div>
     </div>
 
     <!-- RANDOM TAB -->
@@ -735,6 +768,87 @@
     // Init dark icon
     if (document.documentElement.getAttribute('data-theme') === 'dark') document.getElementById('dark-btn').textContent = '☀️';
 
+    // Export / Import / Share
+    function exportData() {
+      const data = { want: getWant(), visited: getVisited(), dark: localStorage.getItem(LS_DARK) === '1' };
+      const json = JSON.stringify(data);
+      document.getElementById('export-text').value = json;
+      document.getElementById('export-box').style.display = 'block';
+      document.getElementById('import-box').style.display = 'none';
+      document.getElementById('share-box').style.display = 'none';
+    }
+    function copyExport() {
+      const el = document.getElementById('export-text');
+      el.select();
+      document.execCommand('copy');
+      alert('クリップボードにコピーしました！');
+    }
+    function showImport() {
+      document.getElementById('import-box').style.display = 'block';
+      document.getElementById('export-box').style.display = 'none';
+      document.getElementById('share-box').style.display = 'none';
+      document.getElementById('import-msg').textContent = '';
+    }
+    function hideImport() {
+      document.getElementById('import-box').style.display = 'none';
+      document.getElementById('import-text').value = '';
+      document.getElementById('import-msg').textContent = '';
+    }
+    function doImport() {
+      const text = document.getElementById('import-text').value.trim();
+      const msg = document.getElementById('import-msg');
+      if (!text) { msg.textContent = 'テキストが空です'; msg.style.color = 'var(--primary)'; return; }
+      try {
+        const data = JSON.parse(text);
+        if (!Array.isArray(data.want) || !Array.isArray(data.visited)) throw new Error('invalid');
+        if (confirm(`行きたい: ${data.want.length}件 / 行った: ${data.visited.length}件 を復元しますか？\n既存のデータは上書きされます。`)) {
+          saveWant(data.want);
+          saveVisited(data.visited);
+          if (data.dark) { localStorage.setItem(LS_DARK, '1'); document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('dark-btn').textContent = '☀️'; }
+          else { localStorage.removeItem(LS_DARK); document.documentElement.removeAttribute('data-theme'); document.getElementById('dark-btn').textContent = '🌙'; }
+          msg.textContent = '✅ 復元が完了しました！';
+          msg.style.color = '#28a745';
+          renderMyPage();
+          applyFilter();
+        }
+      } catch (e) {
+        msg.textContent = '❌ データ形式が正しくありません';
+        msg.style.color = 'var(--primary)';
+      }
+    }
+    function shareByUrl() {
+      const data = { want: getWant(), visited: getVisited() };
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      const url = location.origin + location.pathname + '?d=' + b64;
+      document.getElementById('share-url').value = url;
+      document.getElementById('share-box').style.display = 'block';
+      document.getElementById('export-box').style.display = 'none';
+      document.getElementById('import-box').style.display = 'none';
+    }
+    function copyShare() {
+      const el = document.getElementById('share-url');
+      el.select();
+      document.execCommand('copy');
+      alert('URLをコピーしました！');
+    }
+    function loadFromUrl() {
+      const params = new URLSearchParams(location.search);
+      const d = params.get('d');
+      if (d) {
+        try {
+          const data = JSON.parse(decodeURIComponent(escape(atob(d))));
+          if (Array.isArray(data.want) && Array.isArray(data.visited)) {
+            if (confirm(`共有されたリストを読み込みますか？\n行きたい: ${data.want.length}件 / 行った: ${data.visited.length}件`)) {
+              saveWant(data.want);
+              saveVisited(data.visited);
+              history.replaceState(null, '', location.pathname);
+              setTab('mypage');
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
     // Event listeners
     document.getElementById('search-input').addEventListener('input', applyFilter);
     document.getElementById('genre-filter').addEventListener('change', applyFilter);
@@ -743,6 +857,7 @@
     document.getElementById('score-min').addEventListener('input', function() { document.getElementById('score-val').textContent = this.value; applyFilter(); });
 
     loadData();
+    loadFromUrl();
   </script>
 </body>
 </html>
