@@ -260,7 +260,7 @@
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: var(--card-bg); border-radius: var(--radius); max-width: 540px; width: 100%;
+      background: var(--card-bg); border-radius: var(--radius); max-width: 640px; width: 100%;
       max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       animation: modalIn 0.3s ease; position: relative; transition: background 0.3s;
     }
@@ -391,6 +391,24 @@
               <option value="19999">〜￥20,000</option>
               <option value="20000">￥20,000〜</option>
             </select>
+          </div>
+          <div class="control-group">
+            <label>🚶 駅からの距離</label>
+            <select id="dist-filter" onchange="applyFilter()">
+              <option value="">指定なし</option>
+              <option value="300">徒歩5分以内 (~300m)</option>
+              <option value="500">徒歩7分以内 (~500m)</option>
+              <option value="800">徒歩10分以内 (~800m)</option>
+              <option value="1000">徒歩13分以内 (~1km)</option>
+              <option value="1500">徒歩20分以内 (~1.5km)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>📅 営業日</label>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+              <input type="checkbox" id="open-today" onchange="applyFilter()" style="width:auto;cursor:pointer;">
+              <label for="open-today" style="font-size:0.85rem;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;font-weight:normal;">今日（<span id="today-label"></span>）営業中のみ</label>
+            </div>
           </div>
           <div class="control-group">
             <label>⭐ 最低スコア: <span id="score-val">0</span></label>
@@ -597,6 +615,9 @@
     function isVisited(id) { return getVisited().includes(id); }
     function updateBadge() { const t = getWant().length + getVisited().length; document.getElementById('mypage-badge').textContent = t; }
 
+    // Set today's day name
+    document.getElementById('today-label').textContent = ['日','月','火','水','木','金','土'][new Date().getDay()];
+
     async function loadData() {
       if (localStorage.getItem(LS_DARK) === '1') { document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('dark-btn').textContent = '☀️'; }
       updateBadge();
@@ -721,14 +742,19 @@
       const genre = document.getElementById('genre-filter').value;
       const area = document.getElementById('area-filter').value;
       const budget = document.getElementById('budget-filter').value;
+      const dist = document.getElementById('dist-filter').value;
       const scoreMin = parseFloat(document.getElementById('score-min').value);
+      const openToday = document.getElementById('open-today').checked;
+      const todayName = ['日','月','火','水','木','金','土'][new Date().getDay()];
 
       filteredData = allData.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
-        if (genre && r.genre !== genre) return false;
-        if (area && r.area !== area) return false;
+        if (genre && (!r.genre || !r.genre.includes(genre))) return false;
+        if (area && (!r.area || !r.area.includes(area))) return false;
         if (budget) { const max = parseInt(budget); if (max >= 20000 ? r.budgetMax < 20000 : r.budgetMax > max) return false; }
+        if (dist) { const max = parseInt(dist); if (parseDistance(r.area) > max) return false; }
         if (scoreMin > 0 && r.scoreNum < scoreMin) return false;
+        if (openToday && r.regular_holiday && r.regular_holiday.includes(todayName)) return false;
         return true;
       });
 
@@ -811,8 +837,10 @@
       document.getElementById('genre-filter').value = '';
       document.getElementById('area-filter').value = '';
       document.getElementById('budget-filter').value = '';
+      document.getElementById('dist-filter').value = '';
       document.getElementById('score-min').value = 0;
       document.getElementById('score-val').textContent = '0';
+      document.getElementById('open-today').checked = false;
       document.getElementById('per-page').value = '50';
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       activeAreaChip = ''; activeGenreChip = '';
@@ -826,6 +854,7 @@
       const r = allData.find(x => x.id === id); if (!r) return;
       const want = isWant(r.id), visited = isVisited(r.id);
       const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
+      const embedMap = `https://maps.google.com/maps?q=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}&t=&z=17&ie=UTF8&iwloc=&output=embed`;
       document.getElementById('modal-body').innerHTML = `
         ${r.image ? `<img src="${r.image}" class="modal-img" alt="${r.name}">` : ''}
         <div class="modal-body">
@@ -841,8 +870,11 @@
           <div class="modal-btns">
             <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); this.classList.toggle('active')">❤️ 行きたい</button>
             <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); this.classList.toggle('active')">✅ 行った</button>
-            <button class="card-btn" onclick="window.open('${mapUrl}', '_blank')">🗺️ 地図</button>
+            <button class="card-btn" onclick="window.open('${mapUrl}', '_blank')">🗺️ 地図アプリ</button>
             <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">食べログ→</a></div>
+          </div>
+          <div style="margin-top:16px;border-radius:12px;overflow:hidden;border:2px solid var(--border);">
+            <iframe width="100%" height="280" style="border:0;display:block;" src="${embedMap}" allowfullscreen loading="lazy"></iframe>
           </div>
         </div>
       `;
@@ -986,16 +1018,18 @@
       }
     }
 
+    function parseDistance(area) { if (!area) return 999999; const m = area.match(/(\d+)m/); return m ? parseInt(m[1]) : 999999; }
+
     // Night & Lunch tab rendering
     let sortNight = 'score', nightPage = 1;
     function renderNight() {
       const search = document.getElementById('night-search').value.toLowerCase().trim();
       const genre = document.getElementById('night-genre').value;
       const budget = document.getElementById('night-budget').value;
-      let data = allData.filter(r => r.genre !== '居酒屋');
+      let data = allData.filter(r => !r.genre || !r.genre.includes('居酒屋'));
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
-        if (genre && r.genre !== genre) return false;
+        if (genre && (!r.genre || !r.genre.includes(genre))) return false;
         if (budget) { const max = parseInt(budget); if (r.budgetMax > max) return false; }
         return true;
       });
@@ -1063,22 +1097,23 @@
       const search = document.getElementById('lunch-search').value.toLowerCase().trim();
       const genre = document.getElementById('lunch-genre').value;
       const budget = document.getElementById('lunch-budget').value;
-      let data = allData.filter(r => r.hasLunch);
+      // Lunch = budgetMax <= 8000 (casual dining)
+      let data = allData.filter(r => r.budgetMax <= 8000);
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
-        if (genre && r.genre !== genre) return false;
-        if (budget !== '') { const max = parseInt(budget); if (r.lunchBudget > max) return false; }
+        if (genre && (!r.genre || !r.genre.includes(genre))) return false;
+        if (budget !== '') { const max = parseInt(budget); if (r.budgetMax > max) return false; }
         return true;
       });
       const dir = sortLunch === 'lunch' ? 1 : -1;
-      data.sort((a, b) => { if (sortLunch === 'score') return dir * (a.scoreNum - b.scoreNum); if (sortLunch === 'save') return dir * (a.saveNum - b.saveNum); if (sortLunch === 'lunch') return dir * (a.lunchBudget - b.lunchBudget); return 0; });
+      data.sort((a, b) => { if (sortLunch === 'score') return dir * (a.scoreNum - b.scoreNum); if (sortLunch === 'save') return dir * (a.saveNum - b.saveNum); if (sortLunch === 'lunch') return dir * (a.budgetMax - b.budgetMax); return 0; });
 
       // Stats
-      const avgLunch = data.length ? '￥' + Math.round(data.reduce((s, r) => s + r.lunchBudget, 0) / data.length).toLocaleString() : '-';
+      const avgBudget = data.length ? '￥' + Math.round(data.reduce((s, r) => s + r.budgetMax, 0) / data.length).toLocaleString() : '-';
       const avgScore = data.length ? (data.reduce((s, r) => s + r.scoreNum, 0) / data.length).toFixed(2) : '-';
       const ls = document.querySelectorAll('#lunch-stats .summary-card .value');
       ls[0].textContent = data.length.toLocaleString() + '件';
-      ls[1].textContent = avgLunch;
+      ls[1].textContent = avgBudget;
       ls[2].textContent = avgScore;
 
       // Grid
