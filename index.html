@@ -411,6 +411,13 @@
             </div>
           </div>
           <div class="control-group">
+            <label>🍰 除外設定</label>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+              <input type="checkbox" id="no-sweets" onchange="applyFilter()" style="width:auto;cursor:pointer;">
+              <label for="no-sweets" style="font-size:0.85rem;color:var(--text);text-transform:none;letter-spacing:0;cursor:pointer;font-weight:normal;">お菓子・カフェ系を除外</label>
+            </div>
+          </div>
+          <div class="control-group">
             <label>⭐ 最低スコア: <span id="score-val">0</span></label>
             <div class="slider-group">
               <input type="range" id="score-min" min="0" max="5" step="0.1" value="0">
@@ -745,7 +752,9 @@
       const dist = document.getElementById('dist-filter').value;
       const scoreMin = parseFloat(document.getElementById('score-min').value);
       const openToday = document.getElementById('open-today').checked;
+      const noSweets = document.getElementById('no-sweets').checked;
       const todayName = ['日','月','火','水','木','金','土'][new Date().getDay()];
+      const sweetGenres = ['カフェ', 'ケーキ', 'パン', 'スイーツ', '洋菓子', '和菓子', 'タピオカ', 'クレープ', 'ジェラート', 'ドーナツ', 'チョコレート', 'パフェ', 'ベーカリー', '喫茶店', 'コーヒー'];
 
       filteredData = allData.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
@@ -755,6 +764,7 @@
         if (dist) { const max = parseInt(dist); if (parseDistance(r.area) > max) return false; }
         if (scoreMin > 0 && r.scoreNum < scoreMin) return false;
         if (openToday && r.regular_holiday && r.regular_holiday.includes(todayName)) return false;
+        if (noSweets && r.genre && sweetGenres.some(sg => r.genre.includes(sg))) return false;
         return true;
       });
 
@@ -841,6 +851,7 @@
       document.getElementById('score-min').value = 0;
       document.getElementById('score-val').textContent = '0';
       document.getElementById('open-today').checked = false;
+      document.getElementById('no-sweets').checked = false;
       document.getElementById('per-page').value = '50';
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       activeAreaChip = ''; activeGenreChip = '';
