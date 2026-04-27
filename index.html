@@ -808,9 +808,11 @@
     function simplifyGenre(genreStr) {
       if (!genreStr) return 'その他';
       const parts = genreStr.split(/[、,]/);
+      // Sort keys by length descending so longer/specific matches are checked first
+      const sortedEntries = Object.entries(GENRE_MAP).sort((a, b) => b[0].length - a[0].length);
       for (const part of parts) {
         const trimmed = part.trim();
-        for (const [key, val] of Object.entries(GENRE_MAP)) {
+        for (const [key, val] of sortedEntries) {
           if (trimmed.includes(key)) return val;
         }
       }
