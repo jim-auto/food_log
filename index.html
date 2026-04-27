@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>名古屋 食べログランキング TOP1000</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+      color: #333;
+      min-height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, #d9534f 0%, #c9302c 100%);
+      color: #fff;
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .header p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .controls {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+    .control-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .control-group label {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 600;
+    }
+    button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 20px;
+      background: #fff;
+      color: #d9534f;
+      border: 2px solid #d9534f;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    button:hover, button.active {
+      background: #d9534f;
+      color: #fff;
+    }
+    select, input {
+      padding: 8px 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    select:focus, input:focus {
+      border-color: #d9534f;
+    }
+    .stats-bar {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+    .rank-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: linear-gradient(135deg, #ff8c00, #ff6b00);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 2;
+    }
+    .rank-badge.top3 {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      width: 50px;
+      height: 50px;
+      font-size: 1.3rem;
+    }
+    .card-body {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-top: 8px;
+      line-height: 1.4;
+      color: #222;
+    }
+    .area {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    .genre {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .genre span {
+      background: #fff3f0;
+      color: #d9534f;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 14px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-weight: bold;
+      color: #d9534f;
+      font-size: 1.15rem;
+    }
+    .stat-label {
+      color: #999;
+      font-size: 0.7rem;
+      margin-top: 2px;
+    }
+    .budget {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      background: #f0f8ff;
+      border-radius: 8px;
+    }
+    .link {
+      margin-top: auto;
+      text-align: center;
+      padding-top: 12px;
+    }
+    .link a {
+      display: inline-block;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #ff8c00, #ff6b00);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 24px;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .link a:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(255,140,0,0.3);
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      color: #999;
+      font-size: 0.8rem;
+    }
+    .loading {
+      text-align: center;
+      padding: 60px;
+      font-size: 1.2rem;
+      color: #888;
+    }
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+      .header h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>名古屋 食べログランキング</h1>
+    <p>名古屋市のおすすめグルメ TOP 1000 | データソース: 食べログ</p>
+  </div>
+  
+  <div class="container">
+    <div class="controls">
+      <div class="control-group">
+        <label>並び替え:</label>
+        <button onclick="sortBy('score')" id="btn-score" class="active">スコア順</button>
+        <button onclick="sortBy('save')" id="btn-save">保存数順</button>
+        <button onclick="sortBy('review')" id="btn-review">口コミ数順</button>
+      </div>
+      <div class="control-group">
+        <label>ジャンル:</label>
+        <select id="genre-filter" onchange="applyFilter()">
+          <option value="">すべて</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>検索:</label>
+        <input type="text" id="search-input" placeholder="店名で検索..." oninput="applyFilter()">
+      </div>
+    </div>
+    
+    <div class="stats-bar" id="stats-bar">読み込み中...</div>
+    
+    <div id="grid">
+      <div class="loading">データを読み込んでいます...</div>
+    </div>
+    
+    <footer>
+      Generated from tabelog.com | 非公式スクレイピングデータ | GitHub Pages
+    </footer>
+  </div>
+
+  <script>
+    let allData = [];
+    let currentSort = 'score';
+    
+    async function loadData() {
+      try {
+        const res = await fetch('nagoya_restaurants.json');
+        allData = await res.json();
+        populateGenreFilter();
+        applyFilter();
+      } catch (e) {
+        document.getElementById('grid').innerHTML = '<div class="loading">データの読み込みに失敗しました</div>';
+      }
+    }
+    
+    function populateGenreFilter() {
+      const genres = new Set();
+      allData.forEach(r => {
+        if (r.genre) genres.add(r.genre);
+      });
+      const select = document.getElementById('genre-filter');
+      Array.from(genres).sort().forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g;
+        opt.textContent = g;
+        select.appendChild(opt);
+      });
+    }
+    
+    function sortBy(key) {
+      currentSort = key;
+      document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-' + key).classList.add('active');
+      applyFilter();
+    }
+    
+    function getSorted(data) {
+      const copy = [...data];
+      if (currentSort === 'score') {
+        copy.sort((a, b) => parseFloat(b.score || 0) - parseFloat(a.score || 0));
+      } else if (currentSort === 'save') {
+        copy.sort((a, b) => parseInt((b.save_count || '0').replace(/[^0-9]/g, '')) - parseInt((a.save_count || '0').replace(/[^0-9]/g, '')));
+      } else if (currentSort === 'review') {
+        copy.sort((a, b) => parseInt((b.review_count || '0').replace(/[^0-9]/g, '')) - parseInt((a.review_count || '0').replace(/[^0-9]/g, '')));
+      }
+      return copy;
+    }
+    
+    function applyFilter() {
+      const genreFilter = document.getElementById('genre-filter').value;
+      const searchText = document.getElementById('search-input').value.toLowerCase();
+      
+      let filtered = allData.filter(r => {
+        if (genreFilter && r.genre !== genreFilter) return false;
+        if (searchText && !r.name.toLowerCase().includes(searchText)) return false;
+        return true;
+      });
+      
+      filtered = getSorted(filtered);
+      
+      document.getElementById('stats-bar').textContent = 
+        `表示中: ${filtered.length}件 / 全${allData.length}件`;
+      
+      render(filtered);
+    }
+    
+    function render(data) {
+      const grid = document.getElementById('grid');
+      if (data.length === 0) {
+        grid.innerHTML = '<div class="loading">該当するお店が見つかりません</div>';
+        return;
+      }
+      
+      grid.innerHTML = '';
+      data.forEach((r, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        
+        const isTop3 = idx < 3;
+        const rankClass = isTop3 ? 'rank-badge top3' : 'rank-badge';
+        
+        const genreHtml = r.genre ? `<span>${r.genre}</span>` : '';
+        
+        card.innerHTML = `
+          <div class="${rankClass}">${idx + 1}</div>
+          <div class="card-body">
+            <div class="name">${r.name}</div>
+            <div class="area">${r.area || ''}</div>
+            <div class="genre">${genreHtml}</div>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-value">${r.score || '-'}</div>
+                <div class="stat-label">スコア</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">${r.save_count || '0'}</div>
+                <div class="stat-label">保存</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">${r.review_count || '0'}</div>
+                <div class="stat-label">口コミ</div>
+              </div>
+            </div>
+            ${r.budget ? `<div class="budget">${r.budget}</div>` : ''}
+            <div class="link">
+              <a href="${r.url}" target="_blank" rel="noopener">食べログで見る</a>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+    
+    loadData();
+  </script>
+</body>
+</html>
