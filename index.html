@@ -632,6 +632,43 @@
     // Set today's day name
     document.getElementById('today-label').textContent = ['日','月','火','水','木','金','土'][new Date().getDay()];
 
+    const GENRE_MAP = {
+      'ラーメン': 'ラーメン', 'つけ麺': 'ラーメン',
+      'うどん': '麺類', 'そば': '麺類', '蕎麦': '麺類',
+      'イタリアン': 'イタリアン', 'パスタ': 'イタリアン', 'ピザ': 'イタリアン',
+      'フレンチ': 'フレンチ', 'ビストロ': 'フレンチ',
+      '中華料理': '中華', '餃子': '中華', '飲茶': '中華', '点心': '中華',
+      '寿司': '和食', '天ぷら': '和食', '焼き鳥': '和食', '鍋': '和食', '懐石': '和食', '会席': '和食', '割烹': '和食',
+      '日本料理': '和食', '和食': '和食', 'うなぎ': '和食', 'しゃぶしゃぶ': '和食',
+      '居酒屋': '居酒屋・バル', 'バル': '居酒屋・バル', 'ダイニングバー': '居酒屋・バル',
+      '焼肉': '肉料理', 'ホルモン': '肉料理', 'ステーキ': '肉料理', '牛料理': '肉料理',
+      '海鮮': '海鮮・魚介', '魚介': '海鮮・魚介',
+      'カフェ': 'カフェ・スイーツ', '喫茶店': 'カフェ・スイーツ', 'パン': 'カフェ・スイーツ', 'ケーキ': 'カフェ・スイーツ',
+      'スイーツ': 'カフェ・スイーツ', '洋菓子': 'カフェ・スイーツ', '和菓子': 'カフェ・スイーツ',
+      '韓国料理': '韓国料理',
+      'タイ料理': 'アジア・エスニック', 'エスニック': 'アジア・エスニック', 'アジア': 'アジア・エスニック',
+      'カレー': 'カレー',
+      'ハンバーグ': '洋食', '洋食': '洋食', 'オムライス': '洋食',
+      'バー': 'バー', 'お酒': 'バー',
+      'とんかつ': 'とんかつ',
+      '串揚げ': '串揚げ',
+      'お好み焼き': 'お好み焼き', 'もんじゃ焼き': 'お好み焼き',
+      'ビュッフェ': 'ビュッフェ', 'バイキング': 'ビュッフェ',
+      '料理旅館': '旅館', 'オーベルジュ': '旅館',
+      'ハンバーガー': 'ファストフード', 'ピザ': 'イタリアン'
+    };
+    function simplifyGenre(genreStr) {
+      if (!genreStr) return 'その他';
+      const parts = genreStr.split(/[、,]/);
+      for (const part of parts) {
+        const trimmed = part.trim();
+        for (const [key, val] of Object.entries(GENRE_MAP)) {
+          if (trimmed.includes(key)) return val;
+        }
+      }
+      return 'その他';
+    }
+
     async function loadData() {
       if (localStorage.getItem(LS_DARK) === '1') { document.documentElement.setAttribute('data-theme', 'dark'); document.getElementById('dark-btn').textContent = '☀️'; }
       updateBadge();
@@ -645,6 +682,7 @@
           r.budgetMax = parseBudget(r.budget);
           r.lunchBudget = parseLunchBudget(r.budget);
           r.hasLunch = r.budget && r.budget.includes('昼');
+          r.genreSimple = simplifyGenre(r.genre);
         });
         populateFilters();
         populateNightFilters();
@@ -659,10 +697,11 @@
     function parseLunchBudget(s) { if (!s) return 999999; const lunchMatch = s.match(/昼[:：]\s*￥?(\d{1,3}(?:,\d{3})*)/); if (lunchMatch) return parseInt(lunchMatch[1].replace(/,/g, '')); const m = s.match(/￥(\d{1,3}(?:,\d{3})*)/g); if (!m) return 999999; return Math.min(...m.map(v => parseInt(v.replace(/[￥,]/g, '')))); }
 
     function populateFilters() {
-      const genres = [...new Set(allData.map(r => r.genre).filter(Boolean))].sort();
+      const genres = [...new Set(allData.map(r => r.genreSimple).filter(Boolean))].sort();
       const areas = [...new Set(allData.map(r => r.area).filter(Boolean))].sort();
       const gSel = document.getElementById('genre-filter');
       const aSel = document.getElementById('area-filter');
+      while (gSel.options.length > 1) gSel.remove(1);
       genres.forEach(g => gSel.add(new Option(g, g)));
       areas.forEach(a => aSel.add(new Option(a, a)));
     }
@@ -677,21 +716,21 @@
 
       // Popular genres
       const genreCounts = {};
-      allData.forEach(r => { if (r.genre) genreCounts[r.genre] = (genreCounts[r.genre] || 0) + 1; });
+      allData.forEach(r => { if (r.genreSimple) genreCounts[r.genreSimple] = (genreCounts[r.genreSimple] || 0) + 1; });
       const topGenres = Object.entries(genreCounts).sort((a, b) => b[1] - a[1]).slice(0, 12);
       const genreContainer = document.getElementById('genre-chips');
       genreContainer.innerHTML = topGenres.map(([g, c]) => `<span class="chip" data-genre="${g}" onclick="toggleGenreChip(this)">${g} (${c})</span>`).join('');
     }
 
     function populateNightFilters() {
-      const genres = [...new Set(allData.filter(r => r.genre !== '居酒屋').map(r => r.genre).filter(Boolean))].sort();
+      const genres = [...new Set(allData.filter(r => r.genreSimple !== '居酒屋・バル').map(r => r.genreSimple).filter(Boolean))].sort();
       const sel = document.getElementById('night-genre');
+      while (sel.options.length > 1) sel.remove(1);
       genres.forEach(g => sel.add(new Option(g, g)));
     }
     function populateLunchFilters() {
-      const genres = [...new Set(allData.filter(r => r.budgetMax <= 8000).map(r => r.genre).filter(Boolean))].sort();
+      const genres = [...new Set(allData.filter(r => r.budgetMax <= 8000).map(r => r.genreSimple).filter(Boolean))].sort();
       const sel = document.getElementById('lunch-genre');
-      // Clear existing options except first
       while (sel.options.length > 1) sel.remove(1);
       genres.forEach(g => sel.add(new Option(g, g)));
     }
@@ -767,13 +806,13 @@
 
       filteredData = allData.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
-        if (genre && (!r.genre || !r.genre.includes(genre))) return false;
+        if (genre && r.genreSimple !== genre) return false;
         if (area && (!r.area || !r.area.includes(area))) return false;
         if (budget) { const max = parseInt(budget); if (max >= 20000 ? r.budgetMax < 20000 : r.budgetMax > max) return false; }
         if (dist) { const max = parseInt(dist); if (parseDistance(r.area) > max) return false; }
         if (scoreMin > 0 && r.scoreNum < scoreMin) return false;
         if (openToday && r.regular_holiday && r.regular_holiday.includes(todayName)) return false;
-        if (noSweets && r.genre && sweetGenres.some(sg => r.genre.includes(sg))) return false;
+        if (noSweets && r.genreSimple === 'カフェ・スイーツ') return false;
         return true;
       });
 
@@ -812,7 +851,7 @@
           <div class="card-body">
             <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
             <div class="area">📍 ${r.area || 'エリア不明'}</div>
-            ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+            ${r.genreSimple ? `<span class="genre-tag">${r.genreSimple}</span>` : ''}
             <div class="stats-row">
               <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
               <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
@@ -880,7 +919,7 @@
         <div class="modal-body">
           <div class="modal-rank">Rank: ${filteredData.findIndex(x => x.id === id) + 1 || '-'}</div>
           <div class="modal-name">${r.name}</div>
-          <div class="modal-meta">📍 ${r.area || ''} ${r.genre ? '｜' + r.genre : ''}</div>
+          <div class="modal-meta">📍 ${r.area || ''} ${r.genreSimple ? '｜' + r.genreSimple : ''}</div>
           <div class="modal-stats">
             <div class="modal-stat"><div class="num">${r.score || '-'}</div><div class="lbl">スコア</div></div>
             <div class="modal-stat"><div class="num">${r.save_count || '0'}</div><div class="lbl">保存</div></div>
@@ -923,7 +962,7 @@
           <div class="card-body">
             <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
             <div class="area">📍 ${r.area || ''}</div>
-            ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+            ${r.genreSimple ? `<span class="genre-tag">${r.genreSimple}</span>` : ''}
             <div class="stats-row">
               <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
               <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
@@ -961,7 +1000,7 @@
               <div class="card-body">
                 <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
                 <div class="area">📍 ${r.area || ''}</div>
-                ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+                ${r.genreSimple ? `<span class="genre-tag">${r.genreSimple}</span>` : ''}
                 <div class="stats-row">
                   <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
                   <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
@@ -1046,10 +1085,10 @@
       const search = document.getElementById('night-search').value.toLowerCase().trim();
       const genre = document.getElementById('night-genre').value;
       const budget = document.getElementById('night-budget').value;
-      let data = allData.filter(r => !r.genre || !r.genre.includes('居酒屋'));
+      let data = allData.filter(r => r.genreSimple !== '居酒屋・バル');
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
-        if (genre && (!r.genre || !r.genre.includes(genre))) return false;
+        if (genre && r.genreSimple !== genre) return false;
         if (budget) { const max = parseInt(budget); if (r.budgetMax > max) return false; }
         return true;
       });
@@ -1084,7 +1123,7 @@
             <div class="card-body">
               <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
               <div class="area">📍 ${r.area || ''}</div>
-              ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+              ${r.genreSimple ? `<span class="genre-tag">${r.genreSimple}</span>` : ''}
               <div class="stats-row">
                 <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
                 <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
@@ -1118,14 +1157,13 @@
       const genre = document.getElementById('lunch-genre').value;
       const budget = document.getElementById('lunch-budget').value;
       const noSweets = document.getElementById('lunch-no-sweets').checked;
-      const sweetGenres = ['カフェ', 'ケーキ', 'パン', 'スイーツ', '洋菓子', '和菓子', 'タピオカ', 'クレープ', 'ジェラート', 'ドーナツ', 'チョコレート', 'パフェ', 'ベーカリー', '喫茶店', 'コーヒー'];
       // Lunch = budgetMax <= 8000 (casual dining)
       let data = allData.filter(r => r.budgetMax <= 8000);
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
-        if (genre && (!r.genre || !r.genre.includes(genre))) return false;
+        if (genre && r.genreSimple !== genre) return false;
         if (budget !== '') { const max = parseInt(budget); if (r.budgetMax > max) return false; }
-        if (noSweets && r.genre && sweetGenres.some(sg => r.genre.includes(sg))) return false;
+        if (noSweets && r.genreSimple === 'カフェ・スイーツ') return false;
         return true;
       });
       const dir = sortLunch === 'lunch' ? 1 : -1;
@@ -1160,7 +1198,7 @@
             <div class="card-body">
               <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
               <div class="area">📍 ${r.area || ''}</div>
-              ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+              ${r.genreSimple ? `<span class="genre-tag">${r.genreSimple}</span>` : ''}
               <div class="stats-row">
                 <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
                 <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
