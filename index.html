@@ -5,380 +5,743 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>名古屋 食べログランキング TOP1000</title>
   <style>
+    :root {
+      --primary: #d9534f;
+      --primary-dark: #c9302c;
+      --accent: #ff8c00;
+      --bg: #f5f7fa;
+      --card-bg: #fff;
+      --text: #333;
+      --text-light: #666;
+      --border: #e0e0e0;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --shadow-hover: 0 8px 30px rgba(0,0,0,0.15);
+      --radius: 14px;
+      --nav-bg: #fff;
+      --modal-overlay: rgba(0,0,0,0.5);
+    }
+    [data-theme="dark"] {
+      --bg: #1a1a2e;
+      --card-bg: #16213e;
+      --text: #eaeaea;
+      --text-light: #a0a0a0;
+      --border: #2a2a4a;
+      --shadow: 0 2px 12px rgba(0,0,0,0.3);
+      --shadow-hover: 0 8px 30px rgba(0,0,0,0.4);
+      --nav-bg: #16213e;
+      --modal-overlay: rgba(0,0,0,0.7);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-      color: #333;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;
     }
     .header {
-      background: linear-gradient(135deg, #d9534f 0%, #c9302c 100%);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: #fff;
-      padding: 40px 20px;
+      padding: 30px 20px 20px;
       text-align: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     }
-    .header h1 {
-      font-size: 2rem;
-      margin-bottom: 8px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    .header h1 { font-size: 1.8rem; margin-bottom: 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    .header p { opacity: 0.9; font-size: 0.9rem; }
+    .nav {
+      background: var(--nav-bg);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: background 0.3s;
     }
-    .header p {
-      opacity: 0.9;
-      font-size: 0.95rem;
-    }
-    .container {
-      max-width: 1200px;
+    .nav-inner {
+      max-width: 1300px;
       margin: 0 auto;
-      padding: 20px;
-    }
-    .controls {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      justify-content: center;
+      gap: 0;
+      overflow-x: auto;
+      padding: 0 10px;
     }
-    .control-group {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .control-group label {
-      font-size: 0.85rem;
-      color: #666;
-      font-weight: 600;
-    }
-    button {
-      padding: 8px 18px;
+    .nav-btn {
+      padding: 14px 20px;
       border: none;
-      border-radius: 20px;
-      background: #fff;
-      color: #d9534f;
-      border: 2px solid #d9534f;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.85rem;
-      transition: all 0.2s;
-    }
-    button:hover, button.active {
-      background: #d9534f;
-      color: #fff;
-    }
-    select, input {
-      padding: 8px 12px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      outline: none;
-    }
-    select:focus, input:focus {
-      border-color: #d9534f;
-    }
-    .stats-bar {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #666;
+      background: transparent;
+      color: var(--text-light);
+      font-weight: 600;
       font-size: 0.9rem;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      overflow: hidden;
-      transition: transform 0.25s, box-shadow 0.25s;
-      display: flex;
-      flex-direction: column;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
       position: relative;
     }
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-    }
-    .rank-badge {
+    .nav-btn:hover { color: var(--primary); }
+    .nav-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .nav-btn .badge {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      background: linear-gradient(135deg, #ff8c00, #ff6b00);
+      top: 8px;
+      right: 2px;
+      background: var(--primary);
       color: #fff;
-      font-size: 1.1rem;
-      font-weight: bold;
-      width: 44px;
-      height: 44px;
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+    .nav-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+    }
+    .icon-btn {
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-light);
+      font-size: 1.1rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      z-index: 2;
+      transition: all 0.2s;
     }
-    .rank-badge.top3 {
-      background: linear-gradient(135deg, #ffd700, #ff8c00);
-      width: 50px;
-      height: 50px;
-      font-size: 1.3rem;
+    .icon-btn:hover { background: var(--border); color: var(--text); }
+    .container { max-width: 1300px; margin: 0 auto; padding: 20px; }
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
     }
-    .card-body {
+    .summary-card {
+      background: var(--card-bg);
+      padding: 14px 10px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: background 0.3s;
+    }
+    .summary-card .value { font-size: 1.4rem; font-weight: bold; color: var(--primary); }
+    .summary-card .label { font-size: 0.7rem; color: var(--text-light); margin-top: 4px; }
+    .controls-panel {
+      background: var(--card-bg);
       padding: 20px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: background 0.3s;
     }
-    .name {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-bottom: 8px;
-      margin-top: 8px;
-      line-height: 1.4;
-      color: #222;
-    }
-    .area {
-      color: #888;
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-    }
-    .genre {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
       margin-bottom: 14px;
     }
-    .genre span {
-      background: #fff3f0;
-      color: #d9534f;
-      padding: 4px 12px;
-      border-radius: 16px;
-      font-size: 0.8rem;
-      font-weight: 600;
+    .control-group { display: flex; flex-direction: column; gap: 5px; }
+    .control-group label { font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+    select, input[type="text"], input[type="number"] {
+      padding: 9px 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 0.85rem;
+      outline: none; transition: border-color 0.2s; width: 100%; background: var(--card-bg); color: var(--text);
     }
-    .stats {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 14px;
-      padding: 10px;
-      background: #f8f9fa;
-      border-radius: 10px;
+    select:focus, input:focus { border-color: var(--primary); }
+    .slider-group { display: flex; align-items: center; gap: 10px; }
+    .slider-group input[type="range"] { flex: 1; accent-color: var(--primary); }
+    .slider-group span { font-size: 0.8rem; font-weight: bold; color: var(--primary); min-width: 36px; text-align: right; }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .btn {
+      padding: 7px 14px; border: 2px solid var(--border); background: var(--card-bg); border-radius: 20px;
+      cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; color: var(--text-light);
     }
-    .stat {
-      text-align: center;
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .actions {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+      gap: 12px; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--border);
     }
-    .stat-value {
-      font-weight: bold;
-      color: #d9534f;
-      font-size: 1.15rem;
+    .clear-btn {
+      padding: 7px 18px; background: transparent; border: 2px solid var(--text-light);
+      color: var(--text-light); border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.8rem;
+      transition: all 0.2s;
     }
-    .stat-label {
-      color: #999;
-      font-size: 0.7rem;
-      margin-top: 2px;
+    .clear-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .result-info { font-size: 0.85rem; color: var(--text-light); }
+    .result-info strong { color: var(--primary); }
+    .view-toggle { display: flex; gap: 4px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
+    .list-view .grid { display: flex; flex-direction: column; gap: 12px; }
+    .card {
+      background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s; display: flex; flex-direction: column;
+      position: relative; transition: background 0.3s;
     }
-    .budget {
-      font-size: 0.9rem;
-      color: #555;
-      margin-bottom: 8px;
-      padding: 6px 10px;
-      background: #f0f8ff;
-      border-radius: 8px;
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+    .list-view .card { flex-direction: row; align-items: center; padding: 14px 18px; gap: 16px; }
+    .list-view .card-body { padding: 0; flex: 1; }
+    .list-view .stats-row, .list-view .budget-box, .list-view .link-btn { display: none; }
+    .list-view .genre-tag { margin-bottom: 4px; }
+    .list-view .name { margin-top: 0; font-size: 1.05rem; }
+    .rank-badge {
+      position: absolute; top: 12px; left: 12px; background: linear-gradient(135deg, #ff8c00, #ff6b00);
+      color: #fff; font-size: 1rem; font-weight: bold; width: 42px; height: 42px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25); z-index: 2;
     }
-    .link {
-      margin-top: auto;
-      text-align: center;
-      padding-top: 12px;
+    .rank-badge.top1 { background: linear-gradient(135deg, #ffd700, #ffb700); width: 50px; height: 50px; font-size: 1.3rem; }
+    .rank-badge.top2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); width: 46px; height: 46px; font-size: 1.15rem; }
+    .rank-badge.top3 { background: linear-gradient(135deg, #cd7f32, #b87333); width: 46px; height: 46px; font-size: 1.15rem; }
+    .list-view .rank-badge { position: static; width: 36px; height: 36px; font-size: 0.9rem; flex-shrink: 0; }
+    .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    .name { font-size: 1.15rem; font-weight: bold; margin-bottom: 6px; margin-top: 8px; line-height: 1.4; color: var(--text); }
+    .list-view .name { margin-top: 0; }
+    .area { color: var(--text-light); font-size: 0.85rem; margin-bottom: 8px; }
+    .genre-tag {
+      display: inline-block; background: #fff3f0; color: var(--primary);
+      padding: 3px 12px; border-radius: 14px; font-size: 0.75rem; font-weight: 600;
+      margin-bottom: 12px; width: fit-content;
     }
-    .link a {
-      display: inline-block;
-      padding: 12px 28px;
-      background: linear-gradient(135deg, #ff8c00, #ff6b00);
-      color: #fff;
-      text-decoration: none;
-      border-radius: 24px;
-      font-weight: bold;
-      transition: transform 0.2s, box-shadow 0.2s;
+    [data-theme="dark"] .genre-tag { background: rgba(217,83,79,0.15); }
+    .stats-row {
+      display: flex; justify-content: space-around; margin-bottom: 12px;
+      padding: 10px; background: rgba(128,128,128,0.06); border-radius: 10px;
     }
-    .link a:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(255,140,0,0.3);
+    .stat { text-align: center; }
+    .stat-value { font-weight: bold; color: var(--primary); font-size: 1.05rem; }
+    .stat-label { color: #999; font-size: 0.68rem; margin-top: 2px; }
+    .budget-box {
+      font-size: 0.85rem; color: var(--text-light); margin-bottom: 10px;
+      padding: 6px 10px; background: rgba(255,140,0,0.08); border-radius: 8px; border-left: 3px solid var(--accent);
     }
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      padding: 20px;
-      color: #999;
-      font-size: 0.8rem;
+    .card-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 10px; }
+    .card-btn {
+      flex: 1; padding: 9px; border: 2px solid var(--border); background: var(--card-bg); border-radius: 10px;
+      cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; color: var(--text-light);
+      display: flex; align-items: center; justify-content: center; gap: 4px;
     }
-    .loading {
-      text-align: center;
-      padding: 60px;
-      font-size: 1.2rem;
-      color: #888;
+    .card-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .card-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .link-btn { text-align: center; }
+    .link-btn a {
+      display: block; padding: 10px; background: linear-gradient(135deg, var(--accent), #ff6b00);
+      color: #fff; text-decoration: none; border-radius: 10px; font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s; font-size: 0.85rem;
     }
-    @media (max-width: 600px) {
+    .link-btn a:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(255,140,0,0.3); }
+    .pagination { display: flex; justify-content: center; gap: 6px; margin-top: 24px; flex-wrap: wrap; }
+    .pagination button {
+      padding: 7px 12px; border: 2px solid var(--border); background: var(--card-bg); border-radius: 8px;
+      cursor: pointer; font-weight: 600; transition: all 0.2s; color: var(--text);
+    }
+    .pagination button:hover { border-color: var(--primary); color: var(--primary); }
+    .pagination button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .loading, .empty { text-align: center; padding: 60px 20px; color: var(--text-light); }
+    .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: var(--modal-overlay);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px; backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card-bg); border-radius: var(--radius); max-width: 520px; width: 100%;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: modalIn 0.3s ease; position: relative; transition: background 0.3s;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .modal-close {
+      position: absolute; top: 14px; right: 14px; width: 36px; height: 36px;
+      border-radius: 50%; border: none; background: rgba(0,0,0,0.08); font-size: 1.3rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; z-index: 10;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.15); }
+    .modal-body { padding: 28px; }
+    .modal-rank {
+      display: inline-block; background: var(--primary); color: #fff;
+      padding: 4px 14px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; margin-bottom: 10px;
+    }
+    .modal-name { font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; color: var(--text); }
+    .modal-meta { color: var(--text-light); font-size: 0.9rem; margin-bottom: 16px; }
+    .modal-stats { display: flex; gap: 16px; margin-bottom: 20px; }
+    .modal-stat { background: rgba(128,128,128,0.06); padding: 12px 16px; border-radius: 10px; text-align: center; flex: 1; }
+    .modal-stat .num { font-size: 1.3rem; font-weight: bold; color: var(--primary); }
+    .modal-stat .lbl { font-size: 0.7rem; color: var(--text-light); }
+    .modal-budget { padding: 10px 14px; background: rgba(255,140,0,0.1); border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-btns .card-btn { flex: 1; }
+    .modal-btns .link-btn { flex: 1.5; }
+
+    /* Random Picker */
+    .random-section { text-align: center; padding: 40px 20px; }
+    .random-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 40px; font-size: 1.1rem; font-weight: bold;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff; border: none; border-radius: 50px; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(217,83,79,0.35); transition: transform 0.2s;
+    }
+    .random-btn:hover { transform: scale(1.05); }
+    .random-result { margin-top: 30px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .random-anim { font-size: 1.5rem; color: var(--text-light); padding: 40px; }
+
+    /* Section */
+    .section-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .mypage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .mypage-empty { text-align: center; padding: 40px; color: var(--text-light); }
+
+    footer { text-align: center; margin-top: 40px; padding: 24px 20px; color: #999; font-size: 0.75rem; }
+    @media (max-width: 640px) {
+      .header h1 { font-size: 1.4rem; }
       .grid { grid-template-columns: 1fr; }
-      .header h1 { font-size: 1.5rem; }
+      .controls-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .list-view .card { flex-direction: column; align-items: flex-start; }
+      .list-view .rank-badge { position: absolute; top: 12px; left: 12px; }
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>名古屋 食べログランキング</h1>
+    <h1>🍴 名古屋 食べログランキング</h1>
     <p>名古屋市のおすすめグルメ TOP 1000 | データソース: 食べログ</p>
   </div>
-  
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <button class="nav-btn active" onclick="setTab('ranking')" id="nav-ranking">🏆 ランキング</button>
+      <button class="nav-btn" onclick="setTab('mypage')" id="nav-mypage">📋 マイページ <span class="badge" id="mypage-badge">0</span></button>
+      <button class="nav-btn" onclick="setTab('random')" id="nav-random">🎲 おすすめ</button>
+      <div class="nav-actions">
+        <button class="icon-btn" onclick="toggleView()" title="表示切替" id="view-btn">⊞</button>
+        <button class="icon-btn" onclick="toggleDark()" title="ダークモード" id="dark-btn">🌙</button>
+      </div>
+    </div>
+  </nav>
+
   <div class="container">
-    <div class="controls">
-      <div class="control-group">
-        <label>並び替え:</label>
-        <button onclick="sortBy('score')" id="btn-score" class="active">スコア順</button>
-        <button onclick="sortBy('save')" id="btn-save">保存数順</button>
-        <button onclick="sortBy('review')" id="btn-review">口コミ数順</button>
+    <!-- RANKING TAB -->
+    <div id="tab-ranking">
+      <div class="stats-summary" id="stats-summary">
+        <div class="summary-card"><div class="value">-</div><div class="label">総件数</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均スコア</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均保存数</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均口コミ数</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">ジャンル数</div></div>
       </div>
-      <div class="control-group">
-        <label>ジャンル:</label>
-        <select id="genre-filter" onchange="applyFilter()">
-          <option value="">すべて</option>
-        </select>
+
+      <div class="controls-panel">
+        <div class="controls-grid">
+          <div class="control-group">
+            <label>🔍 店名検索</label>
+            <input type="text" id="search-input" placeholder="店名の一部を入力...">
+          </div>
+          <div class="control-group">
+            <label>🏷️ ジャンル</label>
+            <select id="genre-filter"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>📍 エリア（駅）</label>
+            <select id="area-filter"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>💰 予算帯</label>
+            <select id="budget-filter">
+              <option value="">指定なし</option>
+              <option value="999">〜￥1,000</option>
+              <option value="1999">〜￥2,000</option>
+              <option value="2999">〜￥3,000</option>
+              <option value="4999">〜￥5,000</option>
+              <option value="7999">〜￥8,000</option>
+              <option value="9999">〜￥10,000</option>
+              <option value="14999">〜￥15,000</option>
+              <option value="19999">〜￥20,000</option>
+              <option value="20000">￥20,000〜</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>⭐ 最低スコア: <span id="score-val">0</span></label>
+            <div class="slider-group">
+              <input type="range" id="score-min" min="0" max="5" step="0.1" value="0">
+              <span>~5.0</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <label>📊 並び替え</label>
+            <div class="btn-group">
+              <button class="btn btn-sort active" onclick="sortBy('score')" id="btn-score">スコア<span class="sort-dir">▼</span></button>
+              <button class="btn btn-sort" onclick="sortBy('save')" id="btn-save">保存数<span class="sort-dir">▼</span></button>
+              <button class="btn btn-sort" onclick="sortBy('review')" id="btn-review">口コミ<span class="sort-dir">▼</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="result-info" id="result-info">読み込み中...</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <label style="font-size:0.8rem;color:var(--text-light);">表示:</label>
+              <select id="per-page" onchange="applyFilter()" style="width:auto;padding:6px 10px;font-size:0.8rem;">
+                <option value="20">20件</option>
+                <option value="50" selected>50件</option>
+                <option value="100">100件</option>
+                <option value="200">200件</option>
+              </select>
+            </div>
+            <button class="clear-btn" onclick="clearFilters()">🗑️ クリア</button>
+          </div>
+        </div>
       </div>
-      <div class="control-group">
-        <label>検索:</label>
-        <input type="text" id="search-input" placeholder="店名で検索..." oninput="applyFilter()">
+
+      <div id="grid"><div class="loading">データを読み込んでいます...</div></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- MYPAGE TAB -->
+    <div id="tab-mypage" style="display:none;">
+      <div class="section-title">❤️ 行きたいリスト</div>
+      <div id="want-list" class="mypage-grid"><div class="mypage-empty">まだ登録されていません</div></div>
+
+      <div class="section-title" style="margin-top:30px;">✅ 行ったリスト</div>
+      <div id="visited-list" class="mypage-grid"><div class="mypage-empty">まだ登録されていません</div></div>
+    </div>
+
+    <!-- RANDOM TAB -->
+    <div id="tab-random" style="display:none;">
+      <div class="random-section">
+        <h2 style="margin-bottom:10px;color:var(--text);">🎲 今日のおすすめ</h2>
+        <p style="color:var(--text-light);margin-bottom:24px;">条件に合うお店からランダムに1件ピックアップ！</p>
+        <button class="random-btn" onclick="pickRandom()">🎰 ガチャを回す</button>
+        <div id="random-result" class="random-result"></div>
       </div>
     </div>
-    
-    <div class="stats-bar" id="stats-bar">読み込み中...</div>
-    
-    <div id="grid">
-      <div class="loading">データを読み込んでいます...</div>
-    </div>
-    
-    <footer>
-      Generated from tabelog.com | 非公式スクレイピングデータ | GitHub Pages
-    </footer>
   </div>
 
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <footer>
+    Generated from tabelog.com | 非公式スクレイピングデータ | GitHub Pages
+  </footer>
+
   <script>
-    let allData = [];
-    let currentSort = 'score';
-    
+    const LS_WANT = 'tabelog_want';
+    const LS_VISITED = 'tabelog_visited';
+    const LS_DARK = 'tabelog_dark';
+    let allData = [], filteredData = [], currentSort = { key: 'score', desc: true }, currentPage = 1, isListView = false;
+
+    // Storage helpers
+    function getWant() { return JSON.parse(localStorage.getItem(LS_WANT) || '[]'); }
+    function getVisited() { return JSON.parse(localStorage.getItem(LS_VISITED) || '[]'); }
+    function saveWant(arr) { localStorage.setItem(LS_WANT, JSON.stringify(arr)); updateBadge(); }
+    function saveVisited(arr) { localStorage.setItem(LS_VISITED, JSON.stringify(arr)); updateBadge(); }
+    function toggleWant(id) { const arr = getWant(); const idx = arr.indexOf(id); if (idx > -1) arr.splice(idx, 1); else arr.push(id); saveWant(arr); applyFilter(); }
+    function toggleVisited(id) { const arr = getVisited(); const idx = arr.indexOf(id); if (idx > -1) arr.splice(idx, 1); else arr.push(id); saveVisited(arr); applyFilter(); }
+    function isWant(id) { return getWant().includes(id); }
+    function isVisited(id) { return getVisited().includes(id); }
+    function updateBadge() { const total = getWant().length + getVisited().length; document.getElementById('mypage-badge').textContent = total; }
+
+    // Init
     async function loadData() {
+      if (localStorage.getItem(LS_DARK) === '1') document.documentElement.setAttribute('data-theme', 'dark');
+      updateBadge();
       try {
         const res = await fetch('nagoya_restaurants.json');
         allData = await res.json();
-        populateGenreFilter();
+        allData.forEach(r => {
+          r.scoreNum = parseFloat(r.score) || 0;
+          r.reviewNum = parseInt((r.review_count || '0').replace(/[^0-9]/g, '')) || 0;
+          r.saveNum = parseInt((r.save_count || '0').replace(/[^0-9]/g, '')) || 0;
+          r.budgetMax = parseBudget(r.budget);
+        });
+        populateFilters();
+        updateSummary(allData);
         applyFilter();
       } catch (e) {
         document.getElementById('grid').innerHTML = '<div class="loading">データの読み込みに失敗しました</div>';
       }
     }
-    
-    function populateGenreFilter() {
-      const genres = new Set();
-      allData.forEach(r => {
-        if (r.genre) genres.add(r.genre);
-      });
-      const select = document.getElementById('genre-filter');
-      Array.from(genres).sort().forEach(g => {
-        const opt = document.createElement('option');
-        opt.value = g;
-        opt.textContent = g;
-        select.appendChild(opt);
-      });
+
+    function parseBudget(s) { if (!s) return 999999; const m = s.match(/￥(\d{1,3}(?:,\d{3})*)/g); if (!m) return 999999; return Math.max(...m.map(v => parseInt(v.replace(/[￥,]/g, '')))); }
+
+    function populateFilters() {
+      const genres = [...new Set(allData.map(r => r.genre).filter(Boolean))].sort();
+      const areas = [...new Set(allData.map(r => r.area).filter(Boolean))].sort();
+      const gSel = document.getElementById('genre-filter');
+      const aSel = document.getElementById('area-filter');
+      genres.forEach(g => gSel.add(new Option(g, g)));
+      areas.forEach(a => aSel.add(new Option(a, a)));
     }
-    
+
+    function updateSummary(data) {
+      const avgScore = data.length ? (data.reduce((s, r) => s + r.scoreNum, 0) / data.length).toFixed(2) : '-';
+      const avgSave = data.length ? Math.round(data.reduce((s, r) => s + r.saveNum, 0) / data.length).toLocaleString() : '-';
+      const avgReview = data.length ? Math.round(data.reduce((s, r) => s + r.reviewNum, 0) / data.length).toLocaleString() : '-';
+      const vals = document.querySelectorAll('.summary-card .value');
+      vals[0].textContent = data.length.toLocaleString() + '件';
+      vals[1].textContent = avgScore;
+      vals[2].textContent = avgSave;
+      vals[3].textContent = avgReview;
+      vals[4].textContent = new Set(data.map(r => r.genre).filter(Boolean)).size;
+    }
+
+    function setTab(tab) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('nav-' + tab).classList.add('active');
+      document.getElementById('tab-ranking').style.display = tab === 'ranking' ? 'block' : 'none';
+      document.getElementById('tab-mypage').style.display = tab === 'mypage' ? 'block' : 'none';
+      document.getElementById('tab-random').style.display = tab === 'random' ? 'block' : 'none';
+      if (tab === 'mypage') renderMyPage();
+    }
+
     function sortBy(key) {
-      currentSort = key;
-      document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
-      document.getElementById('btn-' + key).classList.add('active');
+      if (currentSort.key === key) currentSort.desc = !currentSort.desc;
+      else currentSort = { key, desc: true };
+      document.querySelectorAll('.btn-sort').forEach(b => { b.classList.remove('active'); b.querySelector('.sort-dir').textContent = '▼'; });
+      const active = document.getElementById('btn-' + key);
+      active.classList.add('active');
+      active.querySelector('.sort-dir').textContent = currentSort.desc ? '▼' : '▲';
       applyFilter();
     }
-    
+
     function getSorted(data) {
-      const copy = [...data];
-      if (currentSort === 'score') {
-        copy.sort((a, b) => parseFloat(b.score || 0) - parseFloat(a.score || 0));
-      } else if (currentSort === 'save') {
-        copy.sort((a, b) => parseInt((b.save_count || '0').replace(/[^0-9]/g, '')) - parseInt((a.save_count || '0').replace(/[^0-9]/g, '')));
-      } else if (currentSort === 'review') {
-        copy.sort((a, b) => parseInt((b.review_count || '0').replace(/[^0-9]/g, '')) - parseInt((a.review_count || '0').replace(/[^0-9]/g, '')));
-      }
+      const copy = [...data], { key, desc } = currentSort, dir = desc ? -1 : 1;
+      copy.sort((a, b) => { if (key === 'score') return dir * (a.scoreNum - b.scoreNum); if (key === 'save') return dir * (a.saveNum - b.saveNum); if (key === 'review') return dir * (a.reviewNum - b.reviewNum); return 0; });
       return copy;
     }
-    
+
     function applyFilter() {
-      const genreFilter = document.getElementById('genre-filter').value;
-      const searchText = document.getElementById('search-input').value.toLowerCase();
-      
-      let filtered = allData.filter(r => {
-        if (genreFilter && r.genre !== genreFilter) return false;
-        if (searchText && !r.name.toLowerCase().includes(searchText)) return false;
+      const search = document.getElementById('search-input').value.toLowerCase().trim();
+      const genre = document.getElementById('genre-filter').value;
+      const area = document.getElementById('area-filter').value;
+      const budget = document.getElementById('budget-filter').value;
+      const scoreMin = parseFloat(document.getElementById('score-min').value);
+
+      filteredData = allData.filter(r => {
+        if (search && !r.name.toLowerCase().includes(search)) return false;
+        if (genre && r.genre !== genre) return false;
+        if (area && r.area !== area) return false;
+        if (budget) { const max = parseInt(budget); if (max >= 20000 ? r.budgetMax < 20000 : r.budgetMax > max) return false; }
+        if (scoreMin > 0 && r.scoreNum < scoreMin) return false;
         return true;
       });
-      
-      filtered = getSorted(filtered);
-      
-      document.getElementById('stats-bar').textContent = 
-        `表示中: ${filtered.length}件 / 全${allData.length}件`;
-      
-      render(filtered);
+      filteredData = getSorted(filteredData);
+      currentPage = 1;
+      updateSummary(filteredData);
+      renderPage();
     }
-    
-    function render(data) {
+
+    function renderPage() {
       const grid = document.getElementById('grid');
-      if (data.length === 0) {
-        grid.innerHTML = '<div class="loading">該当するお店が見つかりません</div>';
-        return;
+      const perPage = parseInt(document.getElementById('per-page').value);
+      const start = (currentPage - 1) * perPage;
+      const pageData = filteredData.slice(start, start + perPage);
+
+      if (!pageData.length) {
+        grid.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>該当するお店が見つかりません</p></div>';
+        renderPagination(0); updateResultInfo(); return;
       }
-      
+
       grid.innerHTML = '';
-      data.forEach((r, idx) => {
+      pageData.forEach((r, idx) => {
+        const rank = start + idx + 1;
         const card = document.createElement('div');
         card.className = 'card';
-        
-        const isTop3 = idx < 3;
-        const rankClass = isTop3 ? 'rank-badge top3' : 'rank-badge';
-        
-        const genreHtml = r.genre ? `<span>${r.genre}</span>` : '';
-        
+        let rc = 'rank-badge';
+        if (rank === 1) rc += ' top1'; else if (rank === 2) rc += ' top2'; else if (rank === 3) rc += ' top3';
+        const wantCls = isWant(r.id) ? 'active' : '';
+        const visitedCls = isVisited(r.id) ? 'active' : '';
+
         card.innerHTML = `
-          <div class="${rankClass}">${idx + 1}</div>
+          <div class="${rc}">${rank}</div>
           <div class="card-body">
-            <div class="name">${r.name}</div>
-            <div class="area">${r.area || ''}</div>
-            <div class="genre">${genreHtml}</div>
-            <div class="stats">
-              <div class="stat">
-                <div class="stat-value">${r.score || '-'}</div>
-                <div class="stat-label">スコア</div>
-              </div>
-              <div class="stat">
-                <div class="stat-value">${r.save_count || '0'}</div>
-                <div class="stat-label">保存</div>
-              </div>
-              <div class="stat">
-                <div class="stat-value">${r.review_count || '0'}</div>
-                <div class="stat-label">口コミ</div>
-              </div>
+            <div class="name" style="cursor:pointer;" onclick="openModal('${r.id}')">${r.name}</div>
+            <div class="area">📍 ${r.area || 'エリア不明'}</div>
+            ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+            <div class="stats-row">
+              <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
+              <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
+              <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
             </div>
-            ${r.budget ? `<div class="budget">${r.budget}</div>` : ''}
-            <div class="link">
-              <a href="${r.url}" target="_blank" rel="noopener">食べログで見る</a>
+            ${r.budget ? `<div class="budget-box">${r.budget}</div>` : ''}
+            <div class="card-actions">
+              <button class="card-btn ${wantCls}" onclick="toggleWant('${r.id}');this.classList.toggle('active')">❤️ 行きたい</button>
+              <button class="card-btn ${visitedCls}" onclick="toggleVisited('${r.id}');this.classList.toggle('active')">✅ 行った</button>
+              <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
             </div>
           </div>
         `;
         grid.appendChild(card);
       });
+      renderPagination(Math.ceil(filteredData.length / perPage));
+      updateResultInfo();
     }
-    
+
+    function renderPagination(total) {
+      const pag = document.getElementById('pagination');
+      if (total <= 1) { pag.innerHTML = ''; return; }
+      let html = `<button ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})">←</button>`;
+      let s = Math.max(1, currentPage - 3), e = Math.min(total, s + 6);
+      if (e - s < 6) s = Math.max(1, e - 6);
+      if (s > 1) html += `<button onclick="goPage(1)">1</button>`;
+      if (s > 2) html += `<button disabled>...</button>`;
+      for (let i = s; i <= e; i++) html += `<button class="${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      if (e < total - 1) html += `<button disabled>...</button>`;
+      if (e < total) html += `<button onclick="goPage(${total})">${total}</button>`;
+      html += `<button ${currentPage===total?'disabled':''} onclick="goPage(${currentPage+1})">→</button>`;
+      pag.innerHTML = html;
+    }
+
+    function goPage(p) { currentPage = p; renderPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function updateResultInfo() { const total = filteredData.length, perPage = parseInt(document.getElementById('per-page').value), start = total ? (currentPage - 1) * perPage + 1 : 0, end = Math.min(currentPage * perPage, total); document.getElementById('result-info').innerHTML = `該当: <strong>${total.toLocaleString()}</strong>件 (${start}-${end}件表示中)`; }
+
+    function clearFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('genre-filter').value = '';
+      document.getElementById('area-filter').value = '';
+      document.getElementById('budget-filter').value = '';
+      document.getElementById('score-min').value = 0;
+      document.getElementById('score-val').textContent = '0';
+      document.getElementById('per-page').value = '50';
+      currentSort = { key: 'score', desc: true };
+      document.querySelectorAll('.btn-sort').forEach(b => { b.classList.remove('active'); b.querySelector('.sort-dir').textContent = '▼'; });
+      document.getElementById('btn-score').classList.add('active');
+      applyFilter();
+    }
+
+    // Modal
+    function openModal(id) {
+      const r = allData.find(x => x.id === id); if (!r) return;
+      const want = isWant(r.id), visited = isVisited(r.id);
+      document.getElementById('modal-body').innerHTML = `
+        <div class="modal-rank">Rank: ${filteredData.findIndex(x => x.id === id) + 1 || '-'}</div>
+        <div class="modal-name">${r.name}</div>
+        <div class="modal-meta">📍 ${r.area || ''} ${r.genre ? '｜' + r.genre : ''}</div>
+        <div class="modal-stats">
+          <div class="modal-stat"><div class="num">${r.score || '-'}</div><div class="lbl">スコア</div></div>
+          <div class="modal-stat"><div class="num">${r.save_count || '0'}</div><div class="lbl">保存</div></div>
+          <div class="modal-stat"><div class="num">${r.review_count || '0'}</div><div class="lbl">口コミ</div></div>
+        </div>
+        ${r.budget ? `<div class="modal-budget">💰 ${r.budget}</div>` : ''}
+        <div class="modal-btns">
+          <button class="card-btn ${want?'active':''}" onclick="toggleWant('${r.id}');this.classList.toggle('active')">❤️ 行きたい</button>
+          <button class="card-btn ${visited?'active':''}" onclick="toggleVisited('${r.id}');this.classList.toggle('active')">✅ 行った</button>
+          <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">食べログで見る →</a></div>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('open');
+    }
+    function closeModal(e) { if (!e || e.target.id === 'modal') document.getElementById('modal').classList.remove('open'); }
+
+    // MyPage
+    function renderMyPage() {
+      const wantIds = getWant(), visitedIds = getVisited();
+      const wantList = document.getElementById('want-list');
+      const visitedList = document.getElementById('visited-list');
+
+      if (!wantIds.length) wantList.innerHTML = '<div class="mypage-empty">まだ登録されていません</div>';
+      else wantList.innerHTML = wantIds.map(id => renderMyCard(id)).join('');
+
+      if (!visitedIds.length) visitedList.innerHTML = '<div class="mypage-empty">まだ登録されていません</div>';
+      else visitedList.innerHTML = visitedIds.map(id => renderMyCard(id)).join('');
+    }
+
+    function renderMyCard(id) {
+      const r = allData.find(x => x.id === id); if (!r) return '';
+      return `
+        <div class="card">
+          <div class="card-body">
+            <div class="name" style="cursor:pointer;" onclick="openModal('${r.id}')">${r.name}</div>
+            <div class="area">📍 ${r.area || ''}</div>
+            ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+            <div class="stats-row">
+              <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
+              <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
+              <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
+            </div>
+            <div class="card-actions">
+              <button class="card-btn active" onclick="toggleWant('${r.id}');renderMyPage()">❤️ 解除</button>
+              <button class="card-btn ${isVisited(r.id)?'active':''}" onclick="toggleVisited('${r.id}');renderMyPage()">✅ 行った</button>
+              <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Random
+    function pickRandom() {
+      if (!filteredData.length) { document.getElementById('random-result').innerHTML = '<div class="random-anim">該当するお店がありません</div>'; return; }
+      const resultDiv = document.getElementById('random-result');
+      let count = 0;
+      const interval = setInterval(() => {
+        const temp = filteredData[Math.floor(Math.random() * filteredData.length)];
+        resultDiv.innerHTML = `<div class="random-anim">${temp.name}</div>`;
+        count++;
+        if (count > 15) {
+          clearInterval(interval);
+          const r = filteredData[Math.floor(Math.random() * filteredData.length)];
+          const want = isWant(r.id), visited = isVisited(r.id);
+          resultDiv.innerHTML = `
+            <div class="card" style="text-align:left;">
+              <div class="card-body">
+                <div class="name" style="cursor:pointer;" onclick="openModal('${r.id}')">${r.name}</div>
+                <div class="area">📍 ${r.area || ''}</div>
+                ${r.genre ? `<span class="genre-tag">${r.genre}</span>` : ''}
+                <div class="stats-row">
+                  <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
+                  <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
+                  <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
+                </div>
+                ${r.budget ? `<div class="budget-box">${r.budget}</div>` : ''}
+                <div class="card-actions">
+                  <button class="card-btn ${want?'active':''}" onclick="toggleWant('${r.id}');this.classList.toggle('active')">❤️ 行きたい</button>
+                  <button class="card-btn ${visited?'active':''}" onclick="toggleVisited('${r.id}');this.classList.toggle('active')">✅ 行った</button>
+                  <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }, 80);
+    }
+
+    // View toggle
+    function toggleView() {
+      isListView = !isListView;
+      document.body.classList.toggle('list-view', isListView);
+      document.getElementById('view-btn').textContent = isListView ? '☰' : '⊞';
+    }
+
+    // Dark mode
+    function toggleDark() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      if (isDark) { html.removeAttribute('data-theme'); localStorage.removeItem(LS_DARK); document.getElementById('dark-btn').textContent = '🌙'; }
+      else { html.setAttribute('data-theme', 'dark'); localStorage.setItem(LS_DARK, '1'); document.getElementById('dark-btn').textContent = '☀️'; }
+    }
+
+    // Init dark icon
+    if (document.documentElement.getAttribute('data-theme') === 'dark') document.getElementById('dark-btn').textContent = '☀️';
+
+    // Event listeners
+    document.getElementById('search-input').addEventListener('input', applyFilter);
+    document.getElementById('genre-filter').addEventListener('change', applyFilter);
+    document.getElementById('area-filter').addEventListener('change', applyFilter);
+    document.getElementById('budget-filter').addEventListener('change', applyFilter);
+    document.getElementById('score-min').addEventListener('input', function() { document.getElementById('score-val').textContent = this.value; applyFilter(); });
+
     loadData();
   </script>
 </body>
