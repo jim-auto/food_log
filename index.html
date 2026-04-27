@@ -1093,7 +1093,7 @@
       const genre = document.getElementById('night-genre').value;
       const budget = document.getElementById('night-budget').value;
       const noSweets = document.getElementById('night-no-sweets').checked;
-      let data = allData.filter(r => r.genreSimple !== '居酒屋・バル');
+      let data = allData.filter(r => r.genreSimple !== '居酒屋・バル' && r.genreSimple !== 'バー');
       data = data.filter(r => {
         if (search && !r.name.toLowerCase().includes(search)) return false;
         if (genre && r.genreSimple !== genre) return false;
