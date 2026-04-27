@@ -349,6 +349,7 @@
     <div class="nav-inner">
       <button class="nav-btn active" onclick="setTab('ranking')" id="nav-ranking">🏆 ランキング</button>
       <button class="nav-btn" onclick="setTab('night')" id="nav-night">🌙 夜のグルメ</button>
+      <button class="nav-btn" onclick="setTab('izakaya')" id="nav-izakaya">🍻 安居酒屋</button>
       <button class="nav-btn" onclick="setTab('lunch')" id="nav-lunch">🍽️ ランチ</button>
       <button class="nav-btn" onclick="setTab('mypage')" id="nav-mypage">📋 マイページ <span class="badge" id="mypage-badge">0</span></button>
       <button class="nav-btn" onclick="setTab('random')" id="nav-random">🎲 おすすめ</button>
@@ -527,6 +528,52 @@
       </div>
       <div id="night-grid" class="grid"></div>
       <div class="pagination" id="night-pagination"></div>
+    </div>
+
+    <!-- IZAKAYA TAB -->
+    <div id="tab-izakaya" style="display:none;">
+      <div class="stats-summary" id="izakaya-stats">
+        <div class="summary-card"><div class="value">-</div><div class="label">該当件数</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均スコア</div></div>
+        <div class="summary-card"><div class="value">-</div><div class="label">平均予算</div></div>
+      </div>
+      <div class="controls-panel">
+        <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:12px;">🍻 つまみがうまそうな居酒屋・バル。気軽に飲めるお店を探す。</p>
+        <div class="controls-grid">
+          <div class="control-group">
+            <label>🔍 店名検索</label>
+            <input type="text" id="izakaya-search" placeholder="店名の一部を入力..." oninput="renderIzakaya()">
+          </div>
+          <div class="control-group">
+            <label>📍 路線</label>
+            <select id="izakaya-line" onchange="onLineChange('izakaya')"><option value="">すべて</option></select>
+          </div>
+          <div class="control-group">
+            <label>📍 駅</label>
+            <select id="izakaya-station" onchange="renderIzakaya()"><option value="">すべての駅</option></select>
+          </div>
+          <div class="control-group">
+            <label>💰 予算上限</label>
+            <select id="izakaya-budget" onchange="renderIzakaya()">
+              <option value="">指定なし</option>
+              <option value="2999" selected>〜￥3,000（気軽に）</option>
+              <option value="4999">〜￥5,000</option>
+              <option value="7999">〜￥8,000</option>
+              <option value="9999">〜￥10,000</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>📊 並び替え</label>
+            <div class="btn-group">
+              <button class="btn active" onclick="sortIzakaya='score';document.querySelectorAll('#tab-izakaya .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderIzakaya()">スコア</button>
+              <button class="btn" onclick="sortIzakaya='save';document.querySelectorAll('#tab-izakaya .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderIzakaya()">保存数</button>
+              <button class="btn" onclick="sortIzakaya='review';document.querySelectorAll('#tab-izakaya .btn-group .btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderIzakaya()">口コミ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="izakaya-grid" class="grid"></div>
+      <div class="pagination" id="izakaya-pagination"></div>
     </div>
 
     <!-- LUNCH TAB -->
@@ -788,6 +835,7 @@
         });
         populateFilters();
         populateNightFilters();
+        populateIzakayaFilters();
         populateLunchFilters();
         populateChips();
         updateSummary(allData);
@@ -834,6 +882,12 @@
 
       const lines = Object.keys(LINE_TO_STATIONS).sort();
       const lSel = document.getElementById('night-line');
+      while (lSel.options.length > 1) lSel.remove(1);
+      lines.forEach(l => lSel.add(new Option(l, l)));
+    }
+    function populateIzakayaFilters() {
+      const lines = Object.keys(LINE_TO_STATIONS).sort();
+      const lSel = document.getElementById('izakaya-line');
       while (lSel.options.length > 1) lSel.remove(1);
       lines.forEach(l => lSel.add(new Option(l, l)));
     }
@@ -907,11 +961,13 @@
       document.getElementById('nav-' + tab).classList.add('active');
       document.getElementById('tab-ranking').style.display = tab === 'ranking' ? 'block' : 'none';
       document.getElementById('tab-night').style.display = tab === 'night' ? 'block' : 'none';
+      document.getElementById('tab-izakaya').style.display = tab === 'izakaya' ? 'block' : 'none';
       document.getElementById('tab-lunch').style.display = tab === 'lunch' ? 'block' : 'none';
       document.getElementById('tab-mypage').style.display = tab === 'mypage' ? 'block' : 'none';
       document.getElementById('tab-random').style.display = tab === 'random' ? 'block' : 'none';
       if (tab === 'mypage') renderMyPage();
       if (tab === 'night') renderNight();
+      if (tab === 'izakaya') renderIzakaya();
       if (tab === 'lunch') renderLunch();
     }
 
@@ -1346,6 +1402,80 @@
       let html = `<button ${nightPage === 1 ? 'disabled' : ''} onclick="nightPage--; renderNight()">←</button>`;
       for (let i = 1; i <= total; i++) html += `<button class="${i === nightPage ? 'active' : ''}" onclick="nightPage=${i}; renderNight()">${i}</button>`;
       html += `<button ${nightPage === total ? 'disabled' : ''} onclick="nightPage++; renderNight()">→</button>`;
+      pag.innerHTML = html;
+    }
+
+    let sortIzakaya = 'score', izakayaPage = 1;
+    function renderIzakaya() {
+      const search = document.getElementById('izakaya-search').value.toLowerCase().trim();
+      const line = document.getElementById('izakaya-line').value;
+      const station = document.getElementById('izakaya-station').value;
+      const budget = document.getElementById('izakaya-budget').value;
+      // Izakaya = 居酒屋・バル or バー
+      let data = allData.filter(r => r.genreSimple === '居酒屋・バル' || r.genreSimple === 'バー');
+      data = data.filter(r => {
+        if (search && !r.name.toLowerCase().includes(search)) return false;
+        if (line) { const sts = LINE_TO_STATIONS[line] || []; if (!sts.includes(r.areaSimple)) return false; }
+        if (station && r.areaSimple !== station) return false;
+        if (budget) { const max = parseInt(budget); if (r.budgetMax > max) return false; }
+        return true;
+      });
+      const dir = -1;
+      data.sort((a, b) => { if (sortIzakaya === 'score') return dir * (a.scoreNum - b.scoreNum); if (sortIzakaya === 'save') return dir * (a.saveNum - b.saveNum); if (sortIzakaya === 'review') return dir * (a.reviewNum - b.reviewNum); return 0; });
+
+      // Stats
+      const avgScore = data.length ? (data.reduce((s, r) => s + r.scoreNum, 0) / data.length).toFixed(2) : '-';
+      const avgBudget = data.length ? '￥' + Math.round(data.reduce((s, r) => s + (r.budgetMax === 999999 ? 4000 : r.budgetMax), 0) / data.length).toLocaleString() : '-';
+      const ns = document.querySelectorAll('#izakaya-stats .summary-card .value');
+      ns[0].textContent = data.length.toLocaleString() + '件';
+      ns[1].textContent = avgScore;
+      ns[2].textContent = avgBudget;
+
+      // Grid
+      const perPage = 20;
+      const start = (izakayaPage - 1) * perPage;
+      const pageData = data.slice(start, start + perPage);
+      const grid = document.getElementById('izakaya-grid');
+      if (!pageData.length) { grid.innerHTML = '<div class="empty"><div class="empty-icon">🍻</div><p>該当するお店が見つかりません</p></div>'; document.getElementById('izakaya-pagination').innerHTML = ''; return; }
+
+      grid.innerHTML = pageData.map((r, idx) => {
+        const rank = start + idx + 1;
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name + ' ' + (r.area || '名古屋'))}`;
+        const want = isWant(r.id), visited = isVisited(r.id);
+        return `
+          <div class="card">
+            <div class="card-img-wrap" style="height:180px;">
+              ${r.image ? `<img src="${r.image}" alt="${r.name}" loading="lazy">` : ''}
+              <div class="rank-badge" style="width:36px;height:36px;font-size:0.9rem;">${rank}</div>
+            </div>
+            <div class="card-body">
+              <div class="name" onclick="openModal('${r.id}')">${r.name}</div>
+              <div class="area">📍 ${r.area || ''}</div>
+              ${r.genreSimple ? `<span class="genre-tag">${r.genreSimple}</span>` : ''}
+              <div class="stats-row">
+                <div class="stat"><div class="stat-value">${r.score || '-'}</div><div class="stat-label">スコア</div></div>
+                <div class="stat"><div class="stat-value">${r.save_count || '0'}</div><div class="stat-label">保存</div></div>
+                <div class="stat"><div class="stat-value">${r.review_count || '0'}</div><div class="stat-label">口コミ</div></div>
+              </div>
+              ${r.budget ? `<div class="budget-box">${r.budget}</div>` : ''}
+              <div class="card-actions">
+                <button class="card-btn ${want ? 'active' : ''}" onclick="toggleWant('${r.id}'); renderIzakaya()">❤️</button>
+                <button class="card-btn ${visited ? 'active' : ''}" onclick="toggleVisited('${r.id}'); renderIzakaya()">✅</button>
+                <button class="card-btn map" onclick="window.open('${mapUrl}', '_blank')">🗺️</button>
+                <div class="link-btn"><a href="${r.url}" target="_blank" rel="noopener">詳細→</a></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Pagination
+      const total = Math.ceil(data.length / perPage);
+      const pag = document.getElementById('izakaya-pagination');
+      if (total <= 1) { pag.innerHTML = ''; return; }
+      let html = `<button ${izakayaPage === 1 ? 'disabled' : ''} onclick="izakayaPage--; renderIzakaya()">←</button>`;
+      for (let i = 1; i <= total; i++) html += `<button class="${i === izakayaPage ? 'active' : ''}" onclick="izakayaPage=${i}; renderIzakaya()">${i}</button>`;
+      html += `<button ${izakayaPage === total ? 'disabled' : ''} onclick="izakayaPage++; renderIzakaya()">→</button>`;
       pag.innerHTML = html;
     }
 
